@@ -1,0 +1,16 @@
+{
+  "name": "tsloxi",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.ts",
+  "scripts": {
+    "lint": "tsc --noemit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.2",
+    "typescript": "^7.0.2"
+  }
+}
