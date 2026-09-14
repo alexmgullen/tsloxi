@@ -1,14 +1,17 @@
 import type { TokenType } from './TokenType.ts';
 
 class Token{
-    token: TokenType;
+    type: TokenType;
     lexeme: string;
     literal: any;
     line: number;
-    constructor(token: TokenType, lexeme: string, literal: any, line: number){
-        this.token   = token;
+    constructor(type: TokenType, lexeme: string, literal: any, line: number){
+        this.type   = type;
         this.lexeme  = lexeme;
         this.literal = literal;
         this.line    = line;
+    };
+    toString(){
+        return `${this.type} ${this.lexeme} ${this.literal}`;
     };
 }
