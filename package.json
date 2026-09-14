@@ -5,12 +5,13 @@
   "license": "ISC",
   "author": "",
   "type": "module",
-  "main": "index.ts",
+  "main": "Lox.ts",
   "scripts": {
     "lint": "tsc --noemit"
   },
   "devDependencies": {
     "@types/node": "^22.20.2",
+    "rolldown": "^1.2.8",
     "typescript": "^7.0.2"
   }
 }

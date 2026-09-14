@@ -1,6 +1,10 @@
+default: build run
 
 run:
-	node index.ts
+	node dist/index.js
+
+build: lint
+	npx rolldown src/Lox.ts --file dist/index.js
 
 lint:
-	npm run lint
+	npx tsc --noemit

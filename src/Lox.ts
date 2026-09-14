@@ -1,16 +1,19 @@
 import readline from "node:readline/promises";
 import fs from "node:fs";
 
+import { Scanner } from "./Scanner.ts";
+import { Token } from "./Token.ts";
+
 const args = process.argv
 
-class lox {
+export class Lox {
     static hadError: boolean = false;
 
     static runFile(path: string){
         const data = fs.readFileSync(path,'utf8');
-        lox.run(data);
+        Lox.run(data);
 
-        if (lox.hadError) {
+        if (Lox.hadError) {
             process.exit(65);
         }
     }
@@ -28,9 +31,9 @@ class lox {
             if (line == ""){
                 break;
             }
-            lox.run(line);
+            Lox.run(line);
 
-            lox.hadError = false;
+            Lox.hadError = false;
         }
     }
 
@@ -38,25 +41,26 @@ class lox {
         if ( args.length > 3 ) {
             console.log("Usage: lox [script]");
         } else if ( args.length == 3 && typeof args[2] == "string"){
-            lox.runFile(args[2]);
+            Lox.runFile(args[2]);
         } else {
-            lox.runPrompt();
+            Lox.runPrompt();
         }
 
         return 0;
     }
 
     static error(line:number,message:string){
-        lox.report(line,"",message);
+        Lox.report(line,"",message);
     }
 
     static report(line: number,where: string,message:string){
         console.log("[line:",line,"] Error",where,":",message);
-        lox.hadError = true;
+        Lox.hadError = true;
     }
 
-    static run(script: string){
-        const tokens: string[] = script.split('');
+    static run(source: string){
+        const scanner: Scanner = new Scanner(source);
+        const tokens: Token[] = scanner.scanTokens();
 
         for (const token of tokens){
             console.log(token)
@@ -64,4 +68,4 @@ class lox {
     };
 }
 
-lox.main();
+Lox.main();

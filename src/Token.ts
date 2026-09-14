@@ -1,6 +1,6 @@
-import type { TokenType } from './TokenType.ts';
+import { TokenType } from './TokenType.ts';
 
-class Token{
+export class Token{
     type: TokenType;
     lexeme: string;
     literal: any;
@@ -11,7 +11,7 @@ class Token{
         this.literal = literal;
         this.line    = line;
     };
-    toString(){
+    toString(): string{
         return `${this.type} ${this.lexeme} ${this.literal}`;
     };
 }
