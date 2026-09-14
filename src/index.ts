@@ -9,6 +9,10 @@ class lox {
     static runFile(path: string){
         const data = fs.readFileSync(path,'utf8');
         lox.run(data);
+
+        if (lox.hadError) {
+            process.exit(65);
+        }
     }
 
     static async runPrompt(){
@@ -25,6 +29,8 @@ class lox {
                 break;
             }
             lox.run(line);
+
+            lox.hadError = false;
         }
     }
 
