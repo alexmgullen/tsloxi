@@ -4,8 +4,6 @@ import fs from "node:fs";
 import { Scanner } from "./Scanner.ts";
 import { Token } from "./Token.ts";
 
-const args = process.argv
-
 export class Lox {
     static hadError: boolean = false;
 
@@ -37,7 +35,7 @@ export class Lox {
         }
     }
 
-    static main(): number{
+    static main(args: string[]): number{
         if ( args.length > 3 ) {
             console.log("Usage: lox [script]");
         } else if ( args.length == 3 && typeof args[2] == "string"){
@@ -68,4 +66,6 @@ export class Lox {
     };
 }
 
-Lox.main();
+const args = process.argv;
+
+Lox.main(args);
