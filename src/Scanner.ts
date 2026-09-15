@@ -23,7 +23,7 @@ export class Scanner{
     };
     advance(): string{
         this.current += 1;
-        return this.source.substring(this.current - 1, this.current);
+        return this.source[this.current - 1]!;
     };
     isAtEnd(){
         return this.current >= this.source.length;
@@ -40,7 +40,7 @@ export class Scanner{
     };
     peek(){
         if(this.isAtEnd()) return '\0';
-        return this.source.substring(this.current -1, this.current);
+        return this.source[this.current];
     };
     scanToken() {
         const c: string = this.advance();
@@ -82,6 +82,9 @@ export class Scanner{
             case '\n':
                 this.line += 1;
                 break;
+            case '"':
+                this.string();
+                break;
             default: 
                 Lox.error(this.line,`Unexpected Character: ${c}`);
                 break;
@@ -96,4 +99,23 @@ export class Scanner{
         this.tokens.push(new Token(TokenType.EOF,"",null,this.line));
         return this.tokens;
     };
+    string(){
+        while(this.peek() !== '"' && ! this.isAtEnd()){
+            if (this.peek() == '\n'){
+                this.line += 1;
+            }
+            this.advance();
+        }
+
+        if(this.isAtEnd()){
+                Lox.error(this.line,`Unterminated String`);
+                return;
+        }
+
+        // consume the closing "
+        this.advance();
+
+        const value: string = this.source.substring(this.start + 1, this.current - 1);
+        this.addToken(TokenType.STRING,value);
+    }
 }
