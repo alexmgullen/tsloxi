@@ -8,3 +8,6 @@ build: lint
 
 lint:
 	npx tsc --noemit
+
+ast:
+	node src/tool/GenerateAst.ts
