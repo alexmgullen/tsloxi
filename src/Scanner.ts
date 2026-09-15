@@ -74,7 +74,7 @@ export class Scanner{
                     this.addToken(TokenType.SLASH);
                 }
                 break;
-            case '':
+            case ' ':
             case '\r':
             case '\t':
                 //Ignore whitespace
@@ -83,7 +83,7 @@ export class Scanner{
                 this.line += 1;
                 break;
             default: 
-                Lox.error(this.line,"Unexpected Character.");
+                Lox.error(this.line,`Unexpected Character: ${c}`);
                 break;
         }
     };
