@@ -2,6 +2,25 @@ import { Token } from "./Token.ts";
 import { TokenType } from "./TokenType.ts";
 import { Lox } from "./Lox.ts";
 
+const keywords: Map<string,TokenType> = new Map<string,TokenType>([
+    ['and',TokenType.AND],
+    ['class',TokenType.CLASS],
+    ['else',TokenType.ELSE],
+    ['false',TokenType.FALSE],
+    ['for',TokenType.FOR],
+    ['fun',TokenType.FUN],
+    ['if',TokenType.IF],
+    ['nil',TokenType.NIL],
+    ['or',TokenType.OR],
+    ['print',TokenType.PRINT],
+    ['return',TokenType.RETURN],
+    ['super',TokenType.SUPER],
+    ['this',TokenType.THIS],
+    ['true',TokenType.TRUE],
+    ['var',TokenType.VAR],
+    ['while',TokenType.WHILE],
+]);
+
 export class Scanner{
     source: string;
     tokens: Token[] = [];
@@ -15,16 +34,29 @@ export class Scanner{
     };
     addToken(type: TokenType, literal?: any): void {
         const text: string = this.source.substring(this.start,this.current);
-        if (literal != undefined) {
+        if (literal !== undefined) {
             this.tokens.push(new Token(type, text, literal, this.line));
         }else{
             this.tokens.push(new Token(type, text, null, this.line));
         }
     };
-    advance(): string{
+    advance(): string {
         this.current += 1;
         return this.source[this.current - 1]!;
     };
+    identifier(): void {
+        while (isAlphaNumeric(this.peek())) {
+            this.advance();
+        }
+
+        const text: string = this.source.substring(this.start,this.current);
+        var type: TokenType | undefined = keywords.get(text);
+        if (type === undefined){
+            type = TokenType.IDENTIFIER;
+        }
+
+        this.addToken(type);
+    }
     isAtEnd(){
         return this.current >= this.source.length;
     };
@@ -38,10 +70,32 @@ export class Scanner{
         this.current += 1;
         return true;
     };
-    peek(){
-        if(this.isAtEnd()) return '\0';
-        return this.source[this.current];
+    number(){
+        if(isDigit(this.peek())){
+            this.advance();
+        }
+
+        if(this.peek() == '.' && isDigit(this.peekNext())){
+            //Consume the "."
+            this.advance();
+
+            while (isDigit(this.peek())){
+                this.advance();
+            }
+        }
+
+        this.addToken(TokenType.NUMBER,parseFloat(this.source.substring(this.start,this.current)))
     };
+    peek(): string {
+        if(this.isAtEnd()) return '\0';
+        return this.source[this.current]!;
+    };
+    peekNext(): string {
+        if(this.current + 1 >= this.source.length){
+            return '\0';
+        }
+        return this.source[this.current + 1]!;
+    }
     scanToken() {
         const c: string = this.advance();
         switch (c){
@@ -85,8 +139,15 @@ export class Scanner{
             case '"':
                 this.string();
                 break;
-            default: 
-                Lox.error(this.line,`Unexpected Character: ${c}`);
+            default:
+                if (isDigit(c)){
+                    this.number();
+                }else if (isAlpha(c)){
+                    this.identifier();
+
+                }else{
+                    Lox.error(this.line,`Unexpected Character: ${c}`);
+                }
                 break;
         }
     };
@@ -118,4 +179,21 @@ export class Scanner{
         const value: string = this.source.substring(this.start + 1, this.current - 1);
         this.addToken(TokenType.STRING,value);
     }
+}
+
+function isDigit(c: string): boolean {
+    if (c >= '0' && c <= '9'){
+        return true;
+    }
+    return false;
+}
+
+function isAlpha(c: string): boolean {
+    return (c >= 'a' && c <= 'z') ||
+            (c >= 'A' && c <= 'Z') ||
+            c == '_';
+}
+
+function isAlphaNumeric(c: string): boolean {
+    return isAlpha(c) || isDigit(c);
 }
