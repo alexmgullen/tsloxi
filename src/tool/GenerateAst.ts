@@ -32,7 +32,7 @@ export class GenerateAst {
         this.defineAst(outputDir,"Expr",[
             new ClassDefinition("Binary",[
                 new ParameterDefinition("left","Expr"),
-                new ParameterDefinition("operator","TokenType"),
+                new ParameterDefinition("operator","Token"),
                 new ParameterDefinition("right","Expr"),
 
             ]),
@@ -46,7 +46,7 @@ export class GenerateAst {
             ]),
             
             new ClassDefinition("Unary",[
-                new ParameterDefinition("operator","TokenType"),
+                new ParameterDefinition("operator","Token"),
                 new ParameterDefinition("right","Expr"),
             ]),
         ]);
@@ -57,18 +57,22 @@ export class GenerateAst {
         const path: string = outputDir + "/" + baseName + ".ts";
         const stream = fs.createWriteStream(path,{ encoding: 'utf8'})
         
-        stream.write('import { TokenType } from "./TokenType.ts"\n');
+        stream.write('import { Token } from "./Token.ts"\n');
 
         //nodejs doesn't have a writeline interface so we need to add the newline ourselves
-        stream.write('interface ' + baseName + '{\n');
+        stream.write('export abstract class ' + baseName + '{\n');
+        
+        stream.write("    abstract accept<R>(visitor: Visitor<R>): R;\n");
        
         // also, since typescript doesn't need children to be in the parent interface (which is equivalent to an abstract class here) we'll close this interface before defining the child classes;
         stream.write('}\n');
 
+        this.defineVisitor(stream, baseName, types);
+
         for (const t of types){
             GenerateAst.defineType(stream, baseName, t.name, t.parameters);
         }
-    }
+    };
     static defineType(stream: fs.WriteStream, baseName: string, className: string, fields: ParameterDefinition[]){
         stream.write("export class " + className + " implements " + baseName + " {\n");
 
@@ -89,9 +93,24 @@ export class GenerateAst {
             stream.write("        this." + field.name + " = " + field.name + ";\n");
         }
         
-        stream.write("    }\n")
+        stream.write("    };\n");
+        
+        // visitor pattern
+        stream.write("    accept<R>(visitor: Visitor<R>): R {\n");
+        stream.write("        return visitor.visit" + className + baseName + "(this);\n");
+        stream.write("    }\n");
 
-        stream.write("}\n")
+        stream.write("};\n")
+    };
+    static defineVisitor(stream: fs.WriteStream, baseName: string, fields: ClassDefinition[]){
+
+        stream.write("export interface Visitor<R> {\n");
+
+        for (const field of fields){
+            stream.write("      visit" + field.name + baseName + "( " + baseName.toLowerCase() + ":" + field.name + " ): R;\n")
+        }
+
+        stream.write("}\n");
 
     }
 }
