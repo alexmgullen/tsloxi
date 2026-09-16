@@ -3,13 +3,18 @@ import fs from "node:fs";
 
 import { AstPrinter } from "./AstPrinter.ts";
 import { Expr } from "./Expr.ts";
+import { Interpreter } from "./Interpreter.ts";
 import { Parser } from "./Parser.ts";
+import { RuntimeError } from "./RuntimeError.ts";
 import { Scanner } from "./Scanner.ts";
 import { Token } from "./Token.ts";
 import { TokenType } from "./TokenType.ts";
 
 export class Lox {
     static hadError: boolean = false;
+    static hadRuntimeError: boolean = false;
+
+    static interpreter: Interpreter = new Interpreter();
 
     static runFile(path: string){
         const data = fs.readFileSync(path,'utf8');
@@ -17,6 +22,10 @@ export class Lox {
 
         if (Lox.hadError) {
             process.exit(65);
+        }
+        
+        if (Lox.hadRuntimeError) {
+            process.exit(70);
         }
     }
 
@@ -85,7 +94,12 @@ export class Lox {
 
         if(this.hadError) return;
 
-        console.log(new AstPrinter().print(expression!));
+        Lox.interpreter.interpret(expression!);
+    };
+
+    static runtimeError(error: RuntimeError){
+        console.log(error.message + `[${error.token.line}]`);
+        this.hadRuntimeError =  true;
     };
 }
 
