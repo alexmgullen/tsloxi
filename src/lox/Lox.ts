@@ -1,8 +1,12 @@
 import readline from "node:readline/promises";
 import fs from "node:fs";
 
+import { AstPrinter } from "./AstPrinter.ts";
+import { Expr } from "./Expr.ts";
+import { Parser } from "./Parser.ts";
 import { Scanner } from "./Scanner.ts";
 import { Token } from "./Token.ts";
+import { TokenType } from "./TokenType.ts";
 
 export class Lox {
     static hadError: boolean = false;
@@ -46,11 +50,24 @@ export class Lox {
 
         return 0;
     }
+    static error(line: number, message: string): void;
+    static error(token: Token, message: string): void;
 
-    static error(line:number,message:string){
-        Lox.report(line,"",message);
-    }
+    // Typescript doesn't handle overloading well, so this is what we have to do
+    static error(lineOrToken: number | Token, message: string): void {
+        if (typeof lineOrToken === "number"){
+            const line = lineOrToken as number;
+            Lox.report(line,"",message);
+        } else if (typeof lineOrToken === "object"){
+            const token = lineOrToken as Token;
 
+            if(token.type == TokenType.EOF) {
+                Lox.report(token.line, " at end",message);
+            } else {
+                Lox.report(token.line, " at '" + token.lexeme + "'",message);
+            }
+        }
+    };
     static report(line: number,where: string,message:string){
         console.log("[line:",line,"] Error",where,":",message);
         Lox.hadError = true;
@@ -59,10 +76,16 @@ export class Lox {
     static run(source: string){
         const scanner: Scanner = new Scanner(source);
         const tokens: Token[] = scanner.scanTokens();
+        const parser: Parser = new Parser(tokens);
+        const expression: Expr | null = parser.parse();
 
-        for (const token of tokens){
-            console.log(token)
+        if (!expression){
+            this.hadError = true;
         }
+
+        if(this.hadError) return;
+
+        console.log(new AstPrinter().print(expression!));
     };
 }
 
