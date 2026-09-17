@@ -1,5 +1,6 @@
 import { Binary, Expr, Unary, Grouping, Literal } from "./Expr.ts";
 import { Lox } from "./Lox.ts";
+import { Stmt, Print, Expression } from "./Stmt.ts";
 import { Token } from "./Token.ts";
 import { TokenType } from "./TokenType.ts";
 
@@ -49,6 +50,11 @@ export class Parser{
     expression(): Expr {
         return this.equality();
     };
+    expressionStatement(): Stmt {
+        const expr: Expr = this.expression();
+        this.consume(TokenType.SEMICOLON,"Expect ';' after expression.");
+        return new Expression(expr);
+    };
     // equality       -> comparison ( ( "!=" | "==" ) comparison )* ;
     equality(): Expr {
         let expr: Expr = this.comparison();
@@ -89,12 +95,14 @@ export class Parser{
 
         return false;
     };
-    parse(): Expr | null {
-        try {
-            return this.expression();
-        } catch {
-            return null;
+    parse(): Stmt[] {
+        const statements: Stmt[] = [];
+
+        while (!this.isAtEnd()) {
+            statements.push(this.statement());
         }
+
+        return statements;
     };
     peek(): Token {
         return this.tokens[this.current]!;
@@ -118,6 +126,17 @@ export class Parser{
         }
 
         throw this.error(this.peek(),"Expected Expression.");
+    };
+    printStatement(): Stmt{
+        const value: Expr = this.expression();
+
+        this.consume(TokenType.SEMICOLON,"Expect ';' after value.")
+        return new Print(value);
+    };
+    statement(): Stmt {
+        if (this.match(TokenType.PRINT)) return this.printStatement();
+
+        return this.expressionStatement();
     };
     synchronize(): void {
         this.advance();

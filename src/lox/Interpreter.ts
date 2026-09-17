@@ -1,11 +1,12 @@
-import { Binary, Expr, Grouping, Literal, Unary, type Visitor } from "./Expr.ts";
+import * as Expr from "./Expr.ts";
 import { Lox } from "./Lox.ts";
 import { RuntimeError } from "./RuntimeError.ts";
+import * as Stmt from "./Stmt.ts";
 import { Token } from "./Token.ts";
 import { TokenType } from "./TokenType.ts";
 
 
-export class Interpreter implements Visitor<Object | null> {
+export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<void> {
     checkNumberOperand(operator: Token, operand: Object | null){
         if (typeof operand === "number") return;
         throw new RuntimeError(operator, "Operand must be a number");
@@ -14,13 +15,14 @@ export class Interpreter implements Visitor<Object | null> {
         if (typeof left === "number" && typeof right === "number") return;
         throw new RuntimeError(operator, "Operand must be a number");
     };
-    evaluate(expr: Expr): Object | null {
+    evaluate(expr: Expr.Expr): Object | null {
         return expr.accept(this);
     };
-    interpret(expression: Expr){
+    interpret(statements: Stmt.Stmt[]){
         try {
-            const value: Object | null = this.evaluate(expression);
-            console.log(this.stringify(value));
+            for (const statement of statements){
+                this.execute(statement);
+            }
         } catch (e: any) {
             if ("token" in e){
                 Lox.runtimeError(e as RuntimeError);
@@ -28,6 +30,9 @@ export class Interpreter implements Visitor<Object | null> {
                 Lox.report(0,"",e.message)
             }
         }
+    };
+    execute(stmt: Stmt.Stmt){
+        stmt.accept(this);
     };
     isEqual(a: Object | null , b: Object | null ): boolean {
         if (a === null && b === null) return true;
@@ -63,7 +68,7 @@ export class Interpreter implements Visitor<Object | null> {
 
         return object.toString();
     }
-    visitBinaryExpr(expr: Binary): Object | null {
+    visitBinaryExpr(expr: Expr.Binary): Object | null {
         const left: Object | null = this.evaluate(expr.left);
         const right: Object | null = this.evaluate(expr.right);
 
@@ -109,13 +114,22 @@ export class Interpreter implements Visitor<Object | null> {
         // Unreachable
         return null;
     };
-    visitGroupingExpr(expr: Grouping): Object | null {
+    visitExpressionStmt(stmt: Stmt.Expression){
+        this.evaluate(stmt.expression);
+        return;
+    };
+    visitGroupingExpr(expr: Expr.Grouping): Object | null {
         return this.evaluate(expr.expression);
     };
-    visitLiteralExpr(expr: Literal): Object | null {
+    visitLiteralExpr(expr: Expr.Literal): Object | null {
         return expr.value;
     };
-    visitUnaryExpr(expr: Unary): Object | null {
+    visitPrintStmt(stmt: Stmt.Print){
+        const value: Object | null = this.evaluate(stmt.expression)
+        console.log(this.stringify(value));
+        return;
+    };
+    visitUnaryExpr(expr: Expr.Unary): Object | null {
         const right: Object | null = this.evaluate(expr.right);
 
         switch (expr.operator.type) {

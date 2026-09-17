@@ -7,6 +7,7 @@ import { Interpreter } from "./Interpreter.ts";
 import { Parser } from "./Parser.ts";
 import { RuntimeError } from "./RuntimeError.ts";
 import { Scanner } from "./Scanner.ts";
+import { Stmt } from "./Stmt.ts";
 import { Token } from "./Token.ts";
 import { TokenType } from "./TokenType.ts";
 
@@ -86,15 +87,15 @@ export class Lox {
         const scanner: Scanner = new Scanner(source);
         const tokens: Token[] = scanner.scanTokens();
         const parser: Parser = new Parser(tokens);
-        const expression: Expr | null = parser.parse();
+        const statements: Stmt[] = parser.parse();
 
-        if (!expression){
+        if (!statements){
             this.hadError = true;
         }
 
         if(this.hadError) return;
 
-        Lox.interpreter.interpret(expression!);
+        Lox.interpreter.interpret(statements!);
     };
 
     static runtimeError(error: RuntimeError){
