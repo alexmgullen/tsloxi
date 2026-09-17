@@ -1,3 +1,4 @@
+import { Environment } from "./Environment.ts";
 import * as Expr from "./Expr.ts";
 import { Lox } from "./Lox.ts";
 import { RuntimeError } from "./RuntimeError.ts";
@@ -7,6 +8,7 @@ import { TokenType } from "./TokenType.ts";
 
 
 export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<void> {
+    environment: Environment = new Environment();
     checkNumberOperand(operator: Token, operand: Object | null){
         if (typeof operand === "number") return;
         throw new RuntimeError(operator, "Operand must be a number");
@@ -114,6 +116,13 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
         // Unreachable
         return null;
     };
+    visitAssignExpr(expr: Expr.Assign): Object | null {
+        const value: Object | null = this.evaluate(expr.value);
+
+        this.environment.assign(expr.name, value);
+
+        return value;
+    }
     visitExpressionStmt(stmt: Stmt.Expression){
         this.evaluate(stmt.expression);
         return;
@@ -141,5 +150,17 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
 
         //unreachable
         return null;
-    }
+    };
+    visitVarStmt(stmt: Stmt.Var){
+        let value: Object | null = null;
+        if (stmt.initializer != null){
+            value = this.evaluate(stmt.initializer);
+        }
+
+        this.environment.define(stmt.name.lexeme, value);
+        return null;
+    };
+    visitVariableExpr(expr: Expr.Variable): Object | null {
+        return this.environment.get(expr.name)
+    };
 }

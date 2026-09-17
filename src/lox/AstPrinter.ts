@@ -1,11 +1,14 @@
-import { Binary, Grouping, Literal, Unary } from "./Expr.ts";
+import { Binary, Grouping, Literal, Unary, Variable, Assign } from "./Expr.ts";
 import { Expr, type Visitor } from "./Expr.ts";
 
 export class AstPrinter implements Visitor<string> {
     print(expr: Expr): string{
         return expr.accept(this);
     };
-
+    
+    visitAssignExpr(expr: Assign): string {
+        return this.parenthesize(expr.name.lexeme, expr);
+    };
     visitBinaryExpr(expr: Binary): string {
         return this.parenthesize(expr.operator.lexeme, expr.left, expr.right);
     };
@@ -19,7 +22,9 @@ export class AstPrinter implements Visitor<string> {
     visitUnaryExpr(expr: Unary): string {
         return this.parenthesize(expr.operator.lexeme, expr.right);
     };
-
+    visitVariableExpr(expr: Variable): string {
+        return this.parenthesize(expr.name.lexeme, expr);
+    };
     parenthesize(name: string,...exprs: Expr[]): string {
         let builder = "";
 

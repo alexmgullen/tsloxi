@@ -59,6 +59,13 @@ export class GenerateAst {
                 new ParameterDefinition("operator","Token"),
                 new ParameterDefinition("right","Expr"),
             ]),
+            new ClassDefinition("Variable",[
+                new ParameterDefinition("name","Token"),
+            ]),
+            new ClassDefinition("Assign",[
+                new ParameterDefinition("name","Token"),
+                new ParameterDefinition("value","Expr"),
+            ]),
             ],
             [
                 new ImportDefinition("./Token.ts",["Token"])
@@ -71,9 +78,14 @@ export class GenerateAst {
             ]),
             new ClassDefinition("Print",[
                 new ParameterDefinition("expression","Expr")
+            ]),
+            new ClassDefinition("Var",[
+                new ParameterDefinition("name","Token"),
+                new ParameterDefinition("initializer","Expr")
             ])
             ],
             [
+                new ImportDefinition("./Token.ts",["Token"]),
                 new ImportDefinition("./Expr.ts",["Expr"])
             ]
         );
