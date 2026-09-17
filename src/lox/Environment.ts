@@ -7,6 +7,7 @@ export class Environment {
         const v = this.values.get(name.lexeme);
         if (v !== undefined) {
             this.values.set(name.lexeme,value);
+            return;
         }
 
         throw new RuntimeError(name, "Undefined Variable '" + name.lexeme + ";.");
