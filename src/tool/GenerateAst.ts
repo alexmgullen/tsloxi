@@ -1,5 +1,6 @@
 import fs from "node:fs";
 
+
 // the book mentions that they get "lazy" when it comes to string manipulation to define this code, this is the non lazy implementation since I found it easier than trying to use exclusively string manipulation.
 class ClassDefinition {
     name: string;
@@ -7,6 +8,15 @@ class ClassDefinition {
     constructor(name: string, parameters: ParameterDefinition[]){
         this.name = name;
         this.parameters = parameters;
+    }
+}
+
+class ImportDefinition {
+    objects: string[];
+    location: string;
+    constructor(location: string, objects: string[]){
+        this.location = location;
+        this.objects = objects;
     }
 }
 
@@ -49,16 +59,37 @@ export class GenerateAst {
                 new ParameterDefinition("operator","Token"),
                 new ParameterDefinition("right","Expr"),
             ]),
-        ]);
+            ],
+            [
+                new ImportDefinition("./Token.ts",["Token"])
+            ]
+        );
+
+        this.defineAst(outputDir,"Stmt",[
+            new ClassDefinition("Expression",[
+                new ParameterDefinition("expression","Expr")
+            ]),
+            new ClassDefinition("Print",[
+                new ParameterDefinition("expression","Expr")
+            ])
+            ],
+            [
+                new ImportDefinition("./Expr.ts",["Expr"])
+            ]
+        );
 
         return 0;
     };
-    static defineAst(outputDir: string, baseName: string, types: ClassDefinition[]){
+    static defineAst(outputDir: string, baseName: string, types: ClassDefinition[], imports: ImportDefinition[]){
         const path: string = outputDir + "/" + baseName + ".ts";
         const stream = fs.createWriteStream(path,{ encoding: 'utf8'})
-        
-        stream.write('import { Token } from "./Token.ts"\n');
 
+        for (const i of imports){
+            stream.write('import {' + i.objects.join(', ') + '} from "' + i.location + '";')
+        }
+
+        stream.write('\n');
+        
         //nodejs doesn't have a writeline interface so we need to add the newline ourselves
         stream.write('export abstract class ' + baseName + '{\n');
         

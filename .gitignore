@@ -6,3 +6,4 @@ dist/*
 
 # Generated Files
 src/lox/Expr.ts
+src/lox/Stmt.ts
