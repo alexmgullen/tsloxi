@@ -63,7 +63,7 @@ export class Scanner{
     match(expected: string): boolean {
         if (this.isAtEnd()) return false;
 
-        if (this.source.substring(this.current - 1, this.current) != expected){
+        if (this.source[this.current] != expected){
             return false;
         }
 
