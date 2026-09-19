@@ -36,6 +36,20 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
     execute(stmt: Stmt.Stmt){
         stmt.accept(this);
     };
+    executeBlock(statements: Stmt.Stmt[],environment: Environment){
+        const previous: Environment = this.environment;
+
+        try{
+
+            this.environment = environment;
+
+            for(const statement of statements){
+                this.execute(statement);
+            }
+        } finally {
+            this.environment = previous;
+        }
+    };
     isEqual(a: Object | null , b: Object | null ): boolean {
         if (a === null && b === null) return true;
         if (a === null) return false;
@@ -69,7 +83,14 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
         }
 
         return object.toString();
-    }
+    };
+    visitAssignExpr(expr: Expr.Assign): Object | null {
+        const value: Object | null = this.evaluate(expr.value);
+
+        this.environment.assign(expr.name, value);
+
+        return value;
+    };
     visitBinaryExpr(expr: Expr.Binary): Object | null {
         const left: Object | null = this.evaluate(expr.left);
         const right: Object | null = this.evaluate(expr.right);
@@ -116,13 +137,10 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
         // Unreachable
         return null;
     };
-    visitAssignExpr(expr: Expr.Assign): Object | null {
-        const value: Object | null = this.evaluate(expr.value);
-
-        this.environment.assign(expr.name, value);
-
-        return value;
-    }
+    visitBlockStmt(stmt: Stmt.Block): void {
+        this.executeBlock(stmt.statements, new Environment(this.environment));
+        return;
+    };
     visitExpressionStmt(stmt: Stmt.Expression){
         this.evaluate(stmt.expression);
         return;
