@@ -1,6 +1,6 @@
-import { Assign, Binary, Expr, Unary, Grouping, Literal, Variable } from "./Expr.ts";
+import { Assign, Binary, Expr, Unary, Grouping, Literal, Logical, Variable } from "./Expr.ts";
 import { Lox } from "./Lox.ts";
-import { Expression, Print, Stmt, Var } from "./Stmt.ts";
+import { Expression, Print, Stmt, Var, Block, If } from "./Stmt.ts";
 import { Token } from "./Token.ts";
 import { TokenType } from "./TokenType.ts";
 
@@ -18,8 +18,20 @@ export class Parser{
         }
         return this.previous();
     };
+    and(): Expr {
+        let expr = this.equality();
+
+        while (this.match(TokenType.AND)){
+
+            const operator: Token = this.previous();
+            const right: Expr = this.equality();
+            expr = new Logical(expr, operator, right);
+        }
+
+        return expr;
+    };
     assignment(): Expr {
-        const expr: Expr = this.equality();
+        const expr: Expr = this.or();
 
         if(this.match(TokenType.EQUAL)){
             const equals = this.previous();
@@ -34,6 +46,18 @@ export class Parser{
         }
 
         return expr;
+    };
+    block(): Stmt[] {
+        const statements: Stmt[] = [];
+
+        while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
+            const d = this.declaration();
+
+            if (d) statements.push(d);
+        }
+
+        this.consume(TokenType.RIGHT_BRACE,"Expect '}' after block.");
+        return statements;
     };
     check(t: TokenType): boolean {
         if(this.isAtEnd()){
@@ -106,6 +130,20 @@ export class Parser{
 
         return expr;
     };
+    ifStatement(): Stmt {
+        this.consume(TokenType.LEFT_PAREN,"Expect '(' after 'if'.");
+        const condition: Expr = this.expression();
+        
+        this.consume(TokenType.RIGHT_PAREN,"Expect ')' after if condition.")
+
+        const thenBranch: Stmt = this.statement();
+        let elseBranch: Stmt | null = null;
+        if (this.match(TokenType.ELSE)){
+            elseBranch = this.statement();
+        }
+
+        return new If(condition,thenBranch,elseBranch);
+    };
     isAtEnd(): boolean {
         if(this.peek().type == TokenType.EOF){
             return true;
@@ -121,6 +159,17 @@ export class Parser{
         }
 
         return false;
+    };
+    or(): Expr {
+        let expr: Expr = this.and();
+
+        while (this.match(TokenType.OR)){
+            const operator: Token = this.previous();
+            const right: Expr = this.and();
+            expr = new Logical(expr,operator,right);
+        }
+
+        return expr;
     };
     parse(): Stmt[] {
         const statements: Stmt[] = [];
@@ -166,7 +215,9 @@ export class Parser{
         return new Print(value);
     };
     statement(): Stmt {
+        if (this.match(TokenType.IF)) return this.ifStatement();
         if (this.match(TokenType.PRINT)) return this.printStatement();
+        if (this.match(TokenType.LEFT_BRACE)) return new Block(this.block());
 
         return this.expressionStatement();
     };

@@ -148,8 +148,27 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
     visitGroupingExpr(expr: Expr.Grouping): Object | null {
         return this.evaluate(expr.expression);
     };
+    visitIfStmt(stmt: Stmt.If): void {
+        if (this.isTruthy(this.evaluate(stmt.condition))) {
+            this.execute(stmt.thenBranch);
+        } else if (stmt.elseBranch != null){
+            this.execute(stmt.elseBranch);
+        }
+        return;
+    };
     visitLiteralExpr(expr: Expr.Literal): Object | null {
         return expr.value;
+    };
+    visitLogicalExpr(expr: Expr.Logical): Object | null {
+        const left = this.evaluate(expr.left);
+
+        if (expr.operator.type === TokenType.OR){
+            if(this.isTruthy(left)) return left;
+        } else {
+            if(!this.isTruthy(left)) return left;
+        }
+
+        return this.evaluate(expr.right);
     };
     visitPrintStmt(stmt: Stmt.Print){
         const value: Object | null = this.evaluate(stmt.expression)

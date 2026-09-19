@@ -54,7 +54,11 @@ export class GenerateAst {
             new ClassDefinition("Literal",[
                 new ParameterDefinition("value","any"),
             ]),
-            
+            new ClassDefinition("Logical",[
+                new ParameterDefinition("left","Expr"),
+                new ParameterDefinition("operator","Token"),
+                new ParameterDefinition("right","Expr"),
+            ]),
             new ClassDefinition("Unary",[
                 new ParameterDefinition("operator","Token"),
                 new ParameterDefinition("right","Expr"),
@@ -73,8 +77,16 @@ export class GenerateAst {
         );
 
         this.defineAst(outputDir,"Stmt",[
+            new ClassDefinition("Block",[
+                new ParameterDefinition("statements","Stmt[]")
+            ]),
             new ClassDefinition("Expression",[
                 new ParameterDefinition("expression","Expr")
+            ]),
+            new ClassDefinition("If",[
+                new ParameterDefinition("condition","Expr"),
+                new ParameterDefinition("thenBranch","Stmt"),
+                new ParameterDefinition("elseBranch","Stmt | null"),
             ]),
             new ClassDefinition("Print",[
                 new ParameterDefinition("expression","Expr")
