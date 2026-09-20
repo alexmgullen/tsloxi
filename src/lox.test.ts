@@ -74,6 +74,28 @@ if (false) {
     print "bar";
 }`)
     ),
+    new Test('Logical statements without scope execute',`foo`,() => Lox.run(`
+if (true)
+    print "foo";
+
+
+if (false)
+    print "bar";
+`)
+    ),
+    new Test('Logical statements without scope do not interfere with other logical statements',`bar`,() => Lox.run(`
+if (false)
+    print "foo";
+
+
+if (true)
+    print "bar";
+`)
+    ),
+    new Test('Else is bounded to nearest if',`a
+c`, () => Lox.run(`
+if(true) print "a"; if (false) print "b"; else print "c";`)
+    ),
 
 ]
 
