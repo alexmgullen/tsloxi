@@ -1,6 +1,6 @@
 import { Assign, Binary, Expr, Unary, Grouping, Literal, Logical, Variable } from "./Expr.ts";
 import { Lox } from "./Lox.ts";
-import { Expression, Print, Stmt, Var, Block, If } from "./Stmt.ts";
+import { Expression, Print, Stmt, Var, Block, If, While } from "./Stmt.ts";
 import { Token } from "./Token.ts";
 import { TokenType } from "./TokenType.ts";
 
@@ -217,6 +217,7 @@ export class Parser{
     statement(): Stmt {
         if (this.match(TokenType.IF)) return this.ifStatement();
         if (this.match(TokenType.PRINT)) return this.printStatement();
+        if (this.match(TokenType.WHILE)) return this.whileStatement();
         if (this.match(TokenType.LEFT_BRACE)) return new Block(this.block());
 
         return this.expressionStatement();
@@ -273,5 +274,13 @@ export class Parser{
 
         this.consume(TokenType.SEMICOLON,"Expect ';' after variable declaration");
         return new Var(name,initializer!);
+    };
+    whileStatement(): Stmt {
+        this.consume(TokenType.LEFT_PAREN,"Expect '(' after 'while'.");
+        const condition: Expr = this.expression();
+        this.consume(TokenType.RIGHT_PAREN,"Expect ')' after condition.");
+        const body: Stmt = this.statement();
+
+        return new While(condition, body);
     };
 }

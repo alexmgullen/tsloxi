@@ -94,7 +94,11 @@ export class GenerateAst {
             new ClassDefinition("Var",[
                 new ParameterDefinition("name","Token"),
                 new ParameterDefinition("initializer","Expr")
-            ])
+            ]),
+            new ClassDefinition("While",[
+                new ParameterDefinition("condition","Expr"),
+                new ParameterDefinition("body","Stmt"),
+            ]),
             ],
             [
                 new ImportDefinition("./Token.ts",["Token"]),

@@ -200,4 +200,10 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
     visitVariableExpr(expr: Expr.Variable): Object | null {
         return this.environment.get(expr.name)
     };
+    visitWhileStmt(stmt: Stmt.While): void {
+        while(this.isTruthy(this.evaluate(stmt.condition))) {
+            this.execute(stmt.body);
+        }
+        return;
+    };
 }
