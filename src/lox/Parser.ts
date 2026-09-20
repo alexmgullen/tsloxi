@@ -1,4 +1,4 @@
-import { Assign, Binary, Expr, Unary, Grouping, Literal, Logical, Variable } from "./Expr.ts";
+import { Assign, Binary, Call, Expr, Unary, Grouping, Literal, Logical, Variable } from "./Expr.ts";
 import { Lox } from "./Lox.ts";
 import { Expression, Print, Stmt, Var, Block, If, While } from "./Stmt.ts";
 import { Token } from "./Token.ts";
@@ -58,6 +58,19 @@ export class Parser{
 
         this.consume(TokenType.RIGHT_BRACE,"Expect '}' after block.");
         return statements;
+    };
+    call(): Expr {
+        let expr: Expr = this.primary();
+
+        while (true) {
+            if (this.match(TokenType.LEFT_PAREN)) {
+                expr = this.finishCall(expr);
+            } else {
+                break;
+            }
+        }
+
+        return expr;
     };
     check(t: TokenType): boolean {
         if(this.isAtEnd()){
@@ -129,6 +142,19 @@ export class Parser{
         }
 
         return expr;
+    };
+    finishCall(callee: Expr): Expr {
+        const a: Expr[] = [];
+
+        if (!this.check(TokenType.RIGHT_PAREN)) {
+            do {
+                a.push(this.expression());
+            } while (this.match(TokenType.COMMA));
+        }
+
+        const paren = this.consume(TokenType.RIGHT_PAREN,"Expect ')' after arguments.");
+
+        return new Call(callee, paren, a);
     };
     forStatement(): Stmt {
         this.consume(TokenType.LEFT_PAREN,"Expect '(' after 'for'.");
@@ -304,7 +330,7 @@ export class Parser{
         }
 
 
-        return this.primary();
+        return this.call();
     };
     varDeclaration(): Stmt {
         const name: Token = this.consume(TokenType.IDENTIFIER,"Expect variable name.");

@@ -8,7 +8,7 @@ import { Expr } from "./lox/Expr.ts";
 import { Token } from "./lox/Token.ts";
 import { TokenType } from "./lox/TokenType.ts";
 
-static class Test {
+class Test {
     name: string;
     expectedOutput: string;
     action: () => void;

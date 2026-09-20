@@ -1,3 +1,4 @@
+import { Callable } from "./Callable.ts";
 import { Environment } from "./Environment.ts";
 import * as Expr from "./Expr.ts";
 import { Lox } from "./Lox.ts";
@@ -8,7 +9,19 @@ import { TokenType } from "./TokenType.ts";
 
 
 export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<void> {
-    environment: Environment = new Environment();
+    globals = new Environment();
+    environment: Environment = this.globals;
+    constructor(){
+
+        const clock = new Callable();
+        clock.loxcall = () => {
+            return (performance.now() / 1000.0) as Number;
+        };
+        clock.arity = () => 0;
+        clock.toString = () => "<native fn>";
+
+        this.globals.define("clock", clock);
+    }
     checkNumberOperand(operator: Token, operand: Object | null){
         if (typeof operand === "number") return;
         throw new RuntimeError(operator, "Operand must be a number");
@@ -140,6 +153,26 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
     visitBlockStmt(stmt: Stmt.Block): void {
         this.executeBlock(stmt.statements, new Environment(this.environment));
         return;
+    };
+    visitCallExpr(expr: Expr.Call): Object | null {
+        const callee: Object | null = this.evaluate(expr.callee);
+
+        const args: Array<Object | null> = [];
+
+        for (let argument of expr.args){
+            args.push(this.evaluate(argument));
+        }
+
+        if (!(callee instanceof Callable)) {
+            throw new RuntimeError(expr.paren,
+                                  "Can only call functions and classes.");
+        }
+
+        const f: Callable = callee as Callable;
+        if (args.length !== f.arity()) {
+            throw new RuntimeError(expr.paren, `Expected ${f.arity()} arguments but got ${args.length}.`);
+        }
+        return f.loxcall(this, args);
     };
     visitExpressionStmt(stmt: Stmt.Expression){
         this.evaluate(stmt.expression);

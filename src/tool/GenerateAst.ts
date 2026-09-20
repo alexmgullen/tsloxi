@@ -47,6 +47,12 @@ export class GenerateAst {
 
             ]),
 
+            new ClassDefinition("Call",[
+                new ParameterDefinition("callee","Expr"),
+                new ParameterDefinition("paren","Token"),
+                new ParameterDefinition("args","Expr[]")
+            ]),
+
             new ClassDefinition("Grouping",[
                 new ParameterDefinition("expression","Expr"),
             ]),
