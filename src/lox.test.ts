@@ -63,7 +63,18 @@ var c = "global c";
 print a;
 print b;
 print c;
-`)),
+`)
+    ),
+    new Test('Logical statements execute',`foo`,() => Lox.run(`
+if (true){
+    print "foo";
+}
+
+if (false) {
+    print "bar";
+}`)
+    ),
+
 ]
 
 const default_output = process.stdout.write;
