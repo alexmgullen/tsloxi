@@ -96,7 +96,14 @@ if (true)
 c`, () => Lox.run(`
 if(true) print "a"; if (false) print "b"; else print "c";`)
     ),
-
+    new Test('Truthyness value of print statement',
+`hi
+yes`,
+        () => Lox.run(`
+print "hi" or 2; // "hi"
+print nil or "yes"; // "yes"
+        `)
+    ),
 ]
 
 const default_output = process.stdout.write;
