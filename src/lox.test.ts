@@ -122,19 +122,19 @@ print nil or "yes"; // "yes"
     ),
 
     new Test('While Loop',
-`1
+`0
+1
 2
 3
-4
-5`,
+4`,
         () => Lox.run(`
 var i = 0;
-while (i < 5)
+while (i < 5){
     print i;
     i = i + 1;
+}
         `)
     ),
-
 ]
 
 const default_output = process.stdout.write;
