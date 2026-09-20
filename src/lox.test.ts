@@ -20,22 +20,24 @@ class Test {
 }
 
 const tests: Test[] = [
-    new Test('AST Printer prints correctly','(* (- 123) (group 45.67))', () => {
-
-        const expression = new Binary(
-            new Unary(
-                new Token(TokenType.MINUS, "-", null, 1),
-                new Literal(123),
-            ),
-            new Token(TokenType.STAR, "*", null, 1),
-            new Grouping(
-                new Literal(45.67),
-            )
-        );
+    new Test('AST Printer prints correctly',`(* (- 123) (group 45.67))`, 
+        () => {
+            const expression = new Binary(
+                new Unary(
+                    new Token(TokenType.MINUS, "-", null, 1),
+                    new Literal(123),
+                ),
+                new Token(TokenType.STAR, "*", null, 1),
+                new Grouping(
+                    new Literal(45.67),
+                )
+            );
 
         console.log(new AstPrinter().print(expression))
     }),
-    new Test('variable scoping works correctly',`inner a
+
+    new Test('variable scoping works correctly',
+`inner a
 outer b
 global c
 outer a
@@ -43,59 +45,73 @@ outer b
 global c
 global a
 global b
-global c`,() => Lox.run(`
-var a = "global a";
-var b = "global b";
-var c = "global c";
-{
-  var a = "outer a";
-  var b = "outer b";
-  {
-    var a = "inner a";
-    print a;
-    print b;
-    print c;
-  }
-  print a;
-  print b;
-  print c;
-}
-print a;
-print b;
-print c;
-`)
+global c`,
+        () => Lox.run(`
+                var a = "global a";
+                var b = "global b";
+                var c = "global c";
+                {
+                  var a = "outer a";
+                  var b = "outer b";
+                  {
+                    var a = "inner a";
+                    print a;
+                    print b;
+                    print c;
+                  }
+                  print a;
+                  print b;
+                  print c;
+                }
+                print a;
+                print b;
+                print c;
+        `)
     ),
-    new Test('Logical statements execute',`foo`,() => Lox.run(`
-if (true){
-    print "foo";
-}
 
-if (false) {
-    print "bar";
-}`)
+    new Test('Logical statements execute',`foo`,
+        () => Lox.run(`
+                if (true){
+                    print "foo";
+                }
+
+                if (false) {
+                    print "bar";
+                }
+        `)
     ),
-    new Test('Logical statements without scope execute',`foo`,() => Lox.run(`
-if (true)
-    print "foo";
 
-
-if (false)
-    print "bar";
-`)
-    ),
-    new Test('Logical statements without scope do not interfere with other logical statements',`bar`,() => Lox.run(`
-if (false)
-    print "foo";
+    new Test('Logical statements without scope execute',`foo`,
+        () => Lox.run(`
+                if (true)
+                    print "foo";
 
 
-if (true)
-    print "bar";
-`)
+                if (false)
+                    print "bar";
+        `)
     ),
-    new Test('Else is bounded to nearest if',`a
-c`, () => Lox.run(`
-if(true) print "a"; if (false) print "b"; else print "c";`)
+
+    new Test('Logical statements without scope do not interfere with other logical statements',`bar`,
+
+        () => Lox.run(`
+                if (false)
+                    print "foo";
+
+
+                if (true)
+                    print "bar";
+        `)
     ),
+
+    new Test('Else is bounded to nearest if',
+`a
+c`,
+        () => Lox.run(`
+            if(true) print "a"; if (false) print "b"; else print "c";`
+        )
+    ),
+
     new Test('Truthyness value of print statement',
 `hi
 yes`,
