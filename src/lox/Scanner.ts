@@ -71,7 +71,7 @@ export class Scanner{
         return true;
     };
     number(){
-        if(isDigit(this.peek())){
+        while (isDigit(this.peek())){
             this.advance();
         }
 

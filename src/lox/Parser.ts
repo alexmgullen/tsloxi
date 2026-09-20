@@ -130,6 +130,47 @@ export class Parser{
 
         return expr;
     };
+    forStatement(): Stmt {
+        this.consume(TokenType.LEFT_PAREN,"Expect '(' after 'for'.");
+        let initializer: Stmt | null = null;
+
+        if (this.match(TokenType.SEMICOLON)){
+            initializer = null;
+        } else if (this.match(TokenType.VAR)){
+            initializer = this.varDeclaration();
+        } else {
+            initializer = this.expressionStatement();
+        }
+
+        let condition: Expr | null = null;
+        if (!this.check(TokenType.SEMICOLON)){
+            condition = this.expression();
+        }
+        this.consume(TokenType.SEMICOLON,"Expect ';' after loop condition");
+
+        let increment: Expr | null = null;
+
+        if (!this.check(TokenType.RIGHT_PAREN)) {
+            increment = this.expression();
+        }
+
+        this.consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.");
+
+        let body: Stmt = this.statement()
+
+        if (increment !== null){
+            body = new Block([body,new Expression(increment)])
+        }
+        
+        if (condition === null) condition = new Literal(true);
+        body = new While(condition, body);
+
+        if (initializer !== null) {
+            body = new Block([initializer,body]);
+        }
+
+        return body;
+    };
     ifStatement(): Stmt {
         this.consume(TokenType.LEFT_PAREN,"Expect '(' after 'if'.");
         const condition: Expr = this.expression();
@@ -215,6 +256,7 @@ export class Parser{
         return new Print(value);
     };
     statement(): Stmt {
+        if (this.match(TokenType.FOR)) return this.forStatement();
         if (this.match(TokenType.IF)) return this.ifStatement();
         if (this.match(TokenType.PRINT)) return this.printStatement();
         if (this.match(TokenType.WHILE)) return this.whileStatement();
@@ -260,6 +302,7 @@ export class Parser{
             const right: Expr = this.unary();
             return new Unary(operator,right);
         }
+
 
         return this.primary();
     };

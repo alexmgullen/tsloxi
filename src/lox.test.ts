@@ -8,7 +8,7 @@ import { Expr } from "./lox/Expr.ts";
 import { Token } from "./lox/Token.ts";
 import { TokenType } from "./lox/TokenType.ts";
 
-class Test {
+static class Test {
     name: string;
     expectedOutput: string;
     action: () => void;
@@ -134,6 +134,7 @@ while (i < 5)
     i = i + 1;
         `)
     ),
+
 ]
 
 const default_output = process.stdout.write;

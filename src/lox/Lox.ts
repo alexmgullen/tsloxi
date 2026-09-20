@@ -95,6 +95,7 @@ export class Lox {
 
         if(this.hadError) return;
 
+
         Lox.interpreter.interpret(statements!);
     };
 
