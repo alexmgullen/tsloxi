@@ -6,15 +6,17 @@ import { Return } from "./Return.ts";
 
 export class LoxFunction extends LoxCallable {
     declaration: Function;
-    constructor(declaration: Function){
+    closure: Environment;
+    constructor(declaration: Function, closure: Environment){
         super();
+        this.closure = closure;
         this.declaration = declaration;
     };
     arity(): number {
         return this.declaration.params.length;
     };
     loxcall(interpreter: Interpreter, args: Array<Object | null>) : Object | null {
-        const environment: Environment = new Environment(interpreter.globals);
+        const environment: Environment = new Environment(this.closure);
 
         for(let i = 0; i < this.declaration.params.length; i ++){
             environment.define(this.declaration.params[i]!.lexeme, args[i]!);

@@ -193,6 +193,26 @@ for (var i = 0; i < 20; i = i + 1) {
 }
         `)
     ),
+
+    new Test('Closure Testing',
+`1
+2`,
+            () => Lox.run(`
+fun makeCounter() {
+  var i = 0;
+  fun count() {
+    i = i + 1;
+    print i;
+  }
+
+  return count;
+}
+
+var counter = makeCounter();
+counter(); // "1".
+counter(); // "2".
+        `)
+    ),
 ]
 
 const default_output = process.stdout.write;
