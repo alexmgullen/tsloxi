@@ -1,6 +1,6 @@
 import { Assign, Binary, Call, Expr, Unary, Grouping, Literal, Logical, Variable } from "./Expr.ts";
 import { Lox } from "./Lox.ts";
-import { Expression, Print, Stmt, Var, Block, If, While } from "./Stmt.ts";
+import { Expression, Function, Print, Stmt, Var, Block, If, While } from "./Stmt.ts";
 import { Token } from "./Token.ts";
 import { TokenType } from "./TokenType.ts";
 
@@ -99,6 +99,7 @@ export class Parser{
     declaration(): Stmt | null {
         try {
             if(this.match(TokenType.VAR)) return this.varDeclaration();
+            if (this.match(TokenType.FUN)) return this.functionDef("function");
 
             return this.statement();
         }  catch {
@@ -148,6 +149,9 @@ export class Parser{
 
         if (!this.check(TokenType.RIGHT_PAREN)) {
             do {
+                if (a.length >= 255){
+                    this.error(this.peek(), "Can't have more than 255 arguments.");
+                }
                 a.push(this.expression());
             } while (this.match(TokenType.COMMA));
         }
@@ -196,6 +200,29 @@ export class Parser{
         }
 
         return body;
+    };
+    functionDef(kind: string): Function {
+        const name: Token = this.consume(TokenType.IDENTIFIER, `Expect ${kind} name.`);
+        this.consume(TokenType.LEFT_PAREN,`Expect '(' after ${kind} name.`);
+        const parameters: Token[] = [];
+
+        if(!this.check(TokenType.RIGHT_PAREN)){
+            do {
+                if (parameters.length >= 255){
+                    this.error(this.peek(),"Can't have more than 255 parameters.");
+                }
+
+                parameters.push(
+                    this.consume(TokenType.IDENTIFIER,"Expect parameter name.")
+                );
+            } while (this.match(TokenType.COMMA));
+        }
+        this.consume(TokenType.RIGHT_PAREN,"Expect ')' after parameters.");
+
+        this.consume(TokenType.LEFT_BRACE,`Expect '{' before ${kind} body.`);
+        const body: Stmt[] = this.block();
+        return new Function(name, parameters, body);
+
     };
     ifStatement(): Stmt {
         this.consume(TokenType.LEFT_PAREN,"Expect '(' after 'if'.");

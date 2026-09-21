@@ -1,7 +1,8 @@
-import { Callable } from "./Callable.ts";
 import { Environment } from "./Environment.ts";
 import * as Expr from "./Expr.ts";
 import { Lox } from "./Lox.ts";
+import { LoxCallable } from "./LoxCallable.ts";
+import { LoxFunction } from "./LoxFunction.ts";
 import { RuntimeError } from "./RuntimeError.ts";
 import * as Stmt from "./Stmt.ts";
 import { Token } from "./Token.ts";
@@ -13,7 +14,7 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
     environment: Environment = this.globals;
     constructor(){
 
-        const clock = new Callable();
+        const clock = new LoxCallable();
         clock.loxcall = () => {
             return (performance.now() / 1000.0) as Number;
         };
@@ -163,12 +164,12 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
             args.push(this.evaluate(argument));
         }
 
-        if (!(callee instanceof Callable)) {
+        if (!(callee instanceof LoxCallable)) {
             throw new RuntimeError(expr.paren,
                                   "Can only call functions and classes.");
         }
 
-        const f: Callable = callee as Callable;
+        const f: LoxCallable = callee as LoxCallable;
         if (args.length !== f.arity()) {
             throw new RuntimeError(expr.paren, `Expected ${f.arity()} arguments but got ${args.length}.`);
         }
@@ -176,6 +177,11 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
     };
     visitExpressionStmt(stmt: Stmt.Expression){
         this.evaluate(stmt.expression);
+        return;
+    };
+    visitFunctionStmt(stmt: Stmt.Function): void {
+        const f: LoxFunction = new LoxFunction(stmt);
+        this.environment.define(stmt.name.lexeme, f);
         return;
     };
     visitGroupingExpr(expr: Expr.Grouping): Object | null {

@@ -89,6 +89,11 @@ export class GenerateAst {
             new ClassDefinition("Expression",[
                 new ParameterDefinition("expression","Expr")
             ]),
+            new ClassDefinition("Function",[
+                new ParameterDefinition("name","Token"),
+                new ParameterDefinition("params","Token[]"),
+                new ParameterDefinition("body","Stmt[]"),
+            ]),
             new ClassDefinition("If",[
                 new ParameterDefinition("condition","Expr"),
                 new ParameterDefinition("thenBranch","Stmt"),

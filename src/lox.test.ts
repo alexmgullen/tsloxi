@@ -135,6 +135,32 @@ while (i < 5){
 }
         `)
     ),
+
+    new Test('Function call',
+`Hi, Dear Reader !`,
+        () => Lox.run(`
+fun sayHi(first, last) {
+  print "Hi, " + first + " " + last + " !";
+}
+
+sayHi("Dear", "Reader");
+        `)
+    ),
+
+    new Test('Convoluted Count',
+`1
+2
+3`,
+        () => Lox.run(`
+fun count(n) {
+  if (n > 1) count(n - 1);
+  print n;
+}
+
+count(3);
+        `)
+    ),
+
 ]
 
 const default_output = process.stdout.write;
