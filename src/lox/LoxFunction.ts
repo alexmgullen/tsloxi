@@ -2,6 +2,7 @@ import { Environment } from "./Environment.ts";
 import { Function } from "./Stmt.ts";
 import { Interpreter } from "./Interpreter.ts";
 import { LoxCallable } from "./LoxCallable.ts";
+import { Return } from "./Return.ts";
 
 export class LoxFunction extends LoxCallable {
     declaration: Function;
@@ -19,7 +20,13 @@ export class LoxFunction extends LoxCallable {
             environment.define(this.declaration.params[i]!.lexeme, args[i]!);
         }
 
-        interpreter.executeBlock(this.declaration.body, environment);
+        try {
+            interpreter.executeBlock(this.declaration.body, environment);
+        } catch (v: any){
+            if(v instanceof Return){
+                return v.value;
+            }
+        }
         return null;
     };
     toString(): string {

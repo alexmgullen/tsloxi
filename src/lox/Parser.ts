@@ -1,6 +1,6 @@
 import { Assign, Binary, Call, Expr, Unary, Grouping, Literal, Logical, Variable } from "./Expr.ts";
 import { Lox } from "./Lox.ts";
-import { Expression, Function, Print, Stmt, Var, Block, If, While } from "./Stmt.ts";
+import { Expression, Function, Print, Return, Stmt, Var, Block, If, While } from "./Stmt.ts";
 import { Token } from "./Token.ts";
 import { TokenType } from "./TokenType.ts";
 
@@ -312,10 +312,22 @@ export class Parser{
         if (this.match(TokenType.FOR)) return this.forStatement();
         if (this.match(TokenType.IF)) return this.ifStatement();
         if (this.match(TokenType.PRINT)) return this.printStatement();
+        if (this.match(TokenType.RETURN)) return this.returnStatement();
         if (this.match(TokenType.WHILE)) return this.whileStatement();
         if (this.match(TokenType.LEFT_BRACE)) return new Block(this.block());
 
         return this.expressionStatement();
+    };
+    returnStatement(): Stmt {
+        const keyword: Token = this.previous();
+        let value: Expr | null = null;
+
+        if (!this.check(TokenType.SEMICOLON)) {
+            value = this.expression();
+        }
+
+        this.consume(TokenType.SEMICOLON, "Expect ';' after return value.");
+        return new Return(keyword, value!);
     };
     synchronize(): void {
         this.advance();

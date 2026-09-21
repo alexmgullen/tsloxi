@@ -3,6 +3,7 @@ import * as Expr from "./Expr.ts";
 import { Lox } from "./Lox.ts";
 import { LoxCallable } from "./LoxCallable.ts";
 import { LoxFunction } from "./LoxFunction.ts";
+import { Return } from "./Return.ts";
 import { RuntimeError } from "./RuntimeError.ts";
 import * as Stmt from "./Stmt.ts";
 import { Token } from "./Token.ts";
@@ -213,6 +214,13 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
         const value: Object | null = this.evaluate(stmt.expression)
         console.log(this.stringify(value));
         return;
+    };
+    visitReturnStmt(stmt: Stmt.Return){
+        let value: Object | null = null;
+
+        if (stmt.value != null) value = this.evaluate(stmt.value);
+
+        throw new Return(value);
     };
     visitUnaryExpr(expr: Expr.Unary): Object | null {
         const right: Object | null = this.evaluate(expr.right);

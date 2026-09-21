@@ -102,6 +102,10 @@ export class GenerateAst {
             new ClassDefinition("Print",[
                 new ParameterDefinition("expression","Expr")
             ]),
+            new ClassDefinition("Return",[
+                new ParameterDefinition("keyword","Token"),
+                new ParameterDefinition("value","Expr"),
+            ]),
             new ClassDefinition("Var",[
                 new ParameterDefinition("name","Token"),
                 new ParameterDefinition("initializer","Expr")
