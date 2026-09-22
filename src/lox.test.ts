@@ -256,6 +256,13 @@ print DevonshireCream;
             `)
     ),
 
+    new Test('class initialization',`Bagel instance`,
+            () => Lox.run(`
+class Bagel {}
+var bagel = Bagel();
+print bagel;
+            `)
+    ),
 ]
 
 const default_output = process.stdout.write;
