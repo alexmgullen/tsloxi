@@ -9,6 +9,14 @@ export class Environment {
             this.enclosing = enclosing;
         }
     };
+    ancestors(distance: number): Environment {
+        let environment: Environment = this;
+        for (let i = 0; i < distance; i++ ){
+            environment = environment.enclosing!;
+        }
+
+        return environment;
+    };
     assign(name: Token, value: Object | null): void {
         const v = this.values.get(name.lexeme);
         if (v !== undefined) {
@@ -23,6 +31,9 @@ export class Environment {
 
         throw new RuntimeError(name, "Undefined Variable '" + name.lexeme + ";.");
     };
+    assignAt(distance: number, name: Token, value: Object | null){
+        this.ancestors(distance).values.set(name.lexeme, value);
+    };
     define(name: string, value: Object | null): void {
         this.values.set(name,value);
     };
@@ -34,5 +45,8 @@ export class Environment {
         if (this.enclosing != null) return this.enclosing.get(name)
 
         throw new RuntimeError(name, "Undefined Variable '" + name.lexeme + ";.");
-    }
+    };
+    getAt(distance: number, name: string): Object | null {
+        return this.ancestors(distance).values.get(name) ?? null;
+    };
 }

@@ -213,6 +213,34 @@ counter(); // "1".
 counter(); // "2".
         `)
     ),
+
+    new Test('Static Binding test',
+`global
+global`,
+            () => Lox.run(`
+var a = "global";
+{
+  fun showA() {
+    print a;
+  }
+
+  showA();
+  var a = "block";
+  showA();
+}
+        `)
+    ),
+
+    new Test('No duplicate variable names in local scopes',`[line: 4 ] Error  at 'a' : Already a variable with this name in this scope.
+`,
+             () => Lox.run(`
+fun bad() {
+  var a = "first";
+  var a = "second";
+}
+            `)
+    ),
+
 ]
 
 const default_output = process.stdout.write;
@@ -233,13 +261,12 @@ for (const test of tests){
     // Patch the original process back in.
     process.stdout.write = default_output;
 
-    console.log("output: ",output);
-
     if (output.trim() === test.expectedOutput){
         console.log("Test Successful ✅");
     } else {
         console.log("Test failed ❌");
         console.log("expected output :",test.expectedOutput);
         console.log("actual output   :",output);
+
     }
 }

@@ -135,7 +135,10 @@ export class GenerateAst {
         
         //nodejs doesn't have a writeline interface so we need to add the newline ourselves
         stream.write('export abstract class ' + baseName + '{\n');
-        
+
+        //to disambiguate object types for javascript
+        stream.write("    base: string = \"" + baseName + "\";\n"); 
+
         stream.write("    abstract accept<R>(visitor: Visitor<R>): R;\n");
        
         // also, since typescript doesn't need children to be in the parent interface (which is equivalent to an abstract class here) we'll close this interface before defining the child classes;
@@ -168,6 +171,9 @@ export class GenerateAst {
         }
         
         stream.write("    };\n");
+        
+        //to disambiguate object types for javascript
+        stream.write("    base: string = \"" + baseName + "\";\n"); 
         
         // visitor pattern
         stream.write("    accept<R>(visitor: Visitor<R>): R {\n");

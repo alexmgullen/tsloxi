@@ -11,19 +11,20 @@ import { TokenType } from "./TokenType.ts";
 
 
 export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<void> {
+    locals: Map<Expr.Expr, number> = new Map<Expr.Expr, number>();
     globals = new Environment();
     environment: Environment = this.globals;
     constructor(){
 
         const clock = new LoxCallable();
         clock.loxcall = () => {
-            return (performance.now() / 1000.0) as Number;
+            return (performance.now() / 1000.0) as number;
         };
         clock.arity = () => 0;
         clock.toString = () => "<native fn>";
 
         this.globals.define("clock", clock);
-    }
+    };
     checkNumberOperand(operator: Token, operand: Object | null){
         if (typeof operand === "number") return;
         throw new RuntimeError(operator, "Operand must be a number");
@@ -35,6 +36,7 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
     evaluate(expr: Expr.Expr): Object | null {
         return expr.accept(this);
     };
+
     interpret(statements: Stmt.Stmt[]){
         try {
             for (const statement of statements){
@@ -86,6 +88,17 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
         if(typeof object === "boolean" && object === false) return false;
         return true;
     };
+    lookupVariable(name: Token, expr: Expr.Expr): Object | null {
+        const distance: number | null = this.locals.get(expr) ?? null;
+        if (distance != null) {
+            return this.environment.getAt(distance, name.lexeme);
+        } else {
+            return this.globals.get(name);
+        }
+    }
+    resolve(expr: Expr.Expr, depth: number): void {
+        this.locals.set(expr,depth);
+    };
     stringify(object: Object | null): string {
         if (object == null) return "nil";
 
@@ -102,7 +115,12 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
     visitAssignExpr(expr: Expr.Assign): Object | null {
         const value: Object | null = this.evaluate(expr.value);
 
-        this.environment.assign(expr.name, value);
+        const distance: number | null = this.locals.get(expr) ?? null;
+        if (distance !== null){
+            this.environment.assignAt(distance,expr.name,value);
+        } else {
+            this.globals.assign(expr.name, value);
+        }
 
         return value;
     };
@@ -245,7 +263,7 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
         return null;
     };
     visitVariableExpr(expr: Expr.Variable): Object | null {
-        return this.environment.get(expr.name)
+        return this.lookupVariable(expr.name, expr);
     };
     visitWhileStmt(stmt: Stmt.While): void {
         while(this.isTruthy(this.evaluate(stmt.condition))) {

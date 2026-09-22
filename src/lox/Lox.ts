@@ -6,6 +6,7 @@ import { Expr } from "./Expr.ts";
 import { Interpreter } from "./Interpreter.ts";
 import { Parser } from "./Parser.ts";
 import { RuntimeError } from "./RuntimeError.ts";
+import { Resolver } from "./Resolver.ts";
 import { Scanner } from "./Scanner.ts";
 import { Stmt } from "./Stmt.ts";
 import { Token } from "./Token.ts";
@@ -94,6 +95,9 @@ export class Lox {
         }
 
         if(this.hadError) return;
+
+        const resolver: Resolver = new Resolver(this.interpreter);
+        resolver.resolve(statements);
 
 
         Lox.interpreter.interpret(statements!);
