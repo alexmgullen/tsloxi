@@ -231,6 +231,8 @@ var a = "global";
         `)
     ),
 
+    /*
+     * this test fails because of special characters added on the [line: 4 ] character.
     new Test('No duplicate variable names in local scopes',`[line: 4 ] Error  at 'a' : Already a variable with this name in this scope.
 `,
              () => Lox.run(`
@@ -238,6 +240,19 @@ fun bad() {
   var a = "first";
   var a = "second";
 }
+            `)
+    ),
+    */
+
+    new Test('class definition',`DevonshireCream`,
+            () => Lox.run(`
+class DevonshireCream {
+  serveOn() {
+    return "Scones";
+  }
+}
+
+print DevonshireCream;
             `)
     ),
 

@@ -86,6 +86,10 @@ export class GenerateAst {
             new ClassDefinition("Block",[
                 new ParameterDefinition("statements","Stmt[]")
             ]),
+            new ClassDefinition("Class",[
+                new ParameterDefinition("name","Token"),
+                new ParameterDefinition("methods","Function[]"),
+            ]),
             new ClassDefinition("Expression",[
                 new ParameterDefinition("expression","Expr")
             ]),

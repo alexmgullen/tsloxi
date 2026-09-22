@@ -1,6 +1,6 @@
 import { Assign, Binary, Call, Expr, Unary, Grouping, Literal, Logical, Variable } from "./Expr.ts";
 import { Lox } from "./Lox.ts";
-import { Expression, Function, Print, Return, Stmt, Var, Block, If, While } from "./Stmt.ts";
+import { Class, Expression, Function, Print, Return, Stmt, Var, Block, If, While } from "./Stmt.ts";
 import { Token } from "./Token.ts";
 import { TokenType } from "./TokenType.ts";
 
@@ -78,6 +78,18 @@ export class Parser{
         }
         return this.peek().type === t;
     };
+    classDeclaration(): Stmt {
+        const name: Token = this.consume(TokenType.IDENTIFIER, "Expect class name.");
+        this.consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
+
+        const methods: Function[] = [];
+        while (!this.check(TokenType.RIGHT_BRACE) && ! this.isAtEnd()) {
+            methods.push(this.functionDef("method"));
+        }
+
+        this.consume(TokenType.RIGHT_BRACE,"Expect '}' after class body.");
+        return new Class(name,methods);
+    };
     // comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
     comparison(): Expr {
         let expr: Expr = this.term();
@@ -98,8 +110,9 @@ export class Parser{
     };
     declaration(): Stmt | null {
         try {
-            if(this.match(TokenType.VAR)) return this.varDeclaration();
+            if (this.match(TokenType.CLASS)) return this.classDeclaration();
             if (this.match(TokenType.FUN)) return this.functionDef("function");
+            if(this.match(TokenType.VAR)) return this.varDeclaration();
 
             return this.statement();
         }  catch {

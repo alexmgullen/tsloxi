@@ -105,6 +105,11 @@ export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
 
         return;
     };
+    visitClassStmt(stmt: Stmt.Class): void {
+        this.declare(stmt.name);
+        this.define(stmt.name);
+        return;
+    };
     visitExpressionStmt(stmt: Stmt.Expression): void {
         this.resolve(stmt.expression);
         return;

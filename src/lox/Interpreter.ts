@@ -2,6 +2,7 @@ import { Environment } from "./Environment.ts";
 import * as Expr from "./Expr.ts";
 import { Lox } from "./Lox.ts";
 import { LoxCallable } from "./LoxCallable.ts";
+import { LoxClass } from "./LoxClass.ts";
 import { LoxFunction } from "./LoxFunction.ts";
 import { Return } from "./Return.ts";
 import { RuntimeError } from "./RuntimeError.ts";
@@ -193,6 +194,12 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
             throw new RuntimeError(expr.paren, `Expected ${f.arity()} arguments but got ${args.length}.`);
         }
         return f.loxcall(this, args);
+    };
+    visitClassStmt(stmt: Stmt.Class): void {
+        this.environment.define(stmt.name.lexeme, null);
+        const c: LoxClass = new LoxClass(stmt.name.lexeme);
+        this.environment.assign(stmt.name,c);
+        return;
     };
     visitExpressionStmt(stmt: Stmt.Expression){
         this.evaluate(stmt.expression);
