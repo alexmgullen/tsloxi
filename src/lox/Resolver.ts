@@ -14,6 +14,7 @@ enum FunctionType {
 enum ClassType {
     NONE,
     CLASS,
+    SUBCLASS,
 }
 
 let currentClass: ClassType = ClassType.NONE;
@@ -125,6 +126,7 @@ export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
         }
 
         if (stmt.superclass != null) {
+            currentClass = ClassType.SUBCLASS;
             this.resolve(stmt.superclass);
         }
 
@@ -208,6 +210,12 @@ export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
         return;
     };
     visitSuperExpr(expr: Expr.Super): void {
+        if (currentClass === ClassType.NONE){
+            Lox.error(expr.keyword,
+                     "can't use 'super' outside of a class.");
+        } else if (currentClass != ClassType.SUBCLASS){
+            Lox.error(expr.keyword,"Can't use 'super' in a class with no superclass.");
+        }
         this.resolveLocal(expr, expr.keyword);
         return;
     };
