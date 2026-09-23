@@ -38,7 +38,6 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
     evaluate(expr: Expr.Expr): Object | null {
         return expr.accept(this);
     };
-
     interpret(statements: Stmt.Stmt[]){
         try {
             for (const statement of statements){
@@ -207,12 +206,22 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
         }
 
         this.environment.define(stmt.name.lexeme, null);
+
+        if(stmt.superclass != null){
+            this.environment = new Environment(this.environment);
+            this.environment.define("super",superclass);
+        }
         const methods: Map<string, LoxFunction> = new Map();
         for (let method of stmt.methods){
             const f: LoxFunction = new LoxFunction(method,this.environment,method.name.lexeme === "init");
             methods.set(method.name.lexeme, f);
         }
         const c: LoxClass = new LoxClass(stmt.name.lexeme, methods, superclass);
+
+        if (superclass !== null){
+            this.environment = this.environment.enclosing!;
+        }
+
         this.environment.assign(stmt.name,c);
         return;
     };
@@ -281,6 +290,19 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
         const value: Object | null = this.evaluate(expr.value);
         (object as LoxInstance).set(expr.name, value);
         return value;
+    };
+    visitSuperExpr(expr: Expr.Super): Object | null {
+        const distance: number = this.locals.get(expr)!;
+        const superclass: LoxClass | null = this.environment.getAt(distance,"super") as LoxClass | null;
+
+        const object: LoxInstance = this.environment.getAt(distance - 1, "this") as LoxInstance;
+
+        const method: LoxFunction | null = superclass?.findMethod(expr.method.lexeme) ?? null;
+        if (method === null){
+            throw new RuntimeError(expr.method,"Undefined property '" + expr.method.lexeme + "'.");
+        }
+
+        return method.bind(object)
     };
     visitThisExpr(expr: Expr.This): Object | null {
         return this.lookupVariable(expr.keyword,expr);

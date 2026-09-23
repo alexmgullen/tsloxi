@@ -1,4 +1,4 @@
-import { Assign, Binary, Call, Expr, Get, This, Unary, Grouping, Literal, Logical, Set, Variable } from "./Expr.ts";
+import { Assign, Binary, Call, Expr, Get, This, Unary, Grouping, Literal, Logical, Set, Super, Variable } from "./Expr.ts";
 import { Lox } from "./Lox.ts";
 import { Class, Expression, Function, Print, Return, Stmt, Var, Block, If, While } from "./Stmt.ts";
 import { Token } from "./Token.ts";
@@ -315,6 +315,14 @@ export class Parser{
 
         if (this.match(TokenType.NUMBER,TokenType.STRING)) {
             return new Literal(this.previous().literal);
+        }
+
+        if (this.match(TokenType.SUPER)) {
+            const keyword: Token = this.previous();
+
+            this.consume(TokenType.DOT,"Expect '.' after 'super'.");
+            const method = this.consume(TokenType.IDENTIFIER,"Expect superclass method name.");
+            return new Super(keyword, method);
         }
 
         if (this.match(TokenType.THIS)) return new This(this.previous());
