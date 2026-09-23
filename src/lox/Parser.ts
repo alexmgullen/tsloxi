@@ -1,4 +1,4 @@
-import { Assign, Binary, Call, Expr, Unary, Grouping, Literal, Logical, Variable } from "./Expr.ts";
+import { Assign, Binary, Call, Expr, Get, Unary, Grouping, Literal, Logical, Set, Variable } from "./Expr.ts";
 import { Lox } from "./Lox.ts";
 import { Class, Expression, Function, Print, Return, Stmt, Var, Block, If, While } from "./Stmt.ts";
 import { Token } from "./Token.ts";
@@ -40,6 +40,9 @@ export class Parser{
             if (expr instanceof Variable){
                 const name: Token = (expr as Variable).name;
                 return new Assign(name, value);
+            } else if (expr instanceof Get){
+                const get: Get = expr as Get;
+                return new Set(get.object, get.name, value);
             }
 
             this.error(equals,"Invalid assignment target.");
@@ -65,6 +68,9 @@ export class Parser{
         while (true) {
             if (this.match(TokenType.LEFT_PAREN)) {
                 expr = this.finishCall(expr);
+            } else if (this.match(TokenType.DOT)){
+                const name: Token = this.consume(TokenType.IDENTIFIER,"Expect property name after '.'.");
+                expr = new Get(expr, name);
             } else {
                 break;
             }

@@ -6,7 +6,8 @@ import { Token } from "./Token.ts";
 
 enum FunctionType {
     NONE,
-    FUNCTION
+    FUNCTION,
+    METHOD,
 }
 
 export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
@@ -108,6 +109,11 @@ export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
     visitClassStmt(stmt: Stmt.Class): void {
         this.declare(stmt.name);
         this.define(stmt.name);
+
+        for (let method of stmt.methods){
+            const declaration: FunctionType = FunctionType.METHOD;
+            this.resolveFunction(method,declaration);
+        }
         return;
     };
     visitExpressionStmt(stmt: Stmt.Expression): void {
@@ -120,6 +126,10 @@ export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
 
         this.resolveFunction(stmt, FunctionType.FUNCTION);
 
+        return;
+    };
+    visitGetExpr(expr: Expr.Get): void {
+        this.resolve(expr.object);
         return;
     };
     visitGroupingExpr(expr: Expr.Grouping): void {
@@ -152,6 +162,11 @@ export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
         if (stmt.value != null){
             this.resolve(stmt.value);
         }
+        return;
+    };
+    visitSetExpr(expr: Expr.Set): void {
+        this.resolve(expr.value);
+        this.resolve(expr.object);
         return;
     };
     visitVarStmt(stmt: Stmt.Var): void {

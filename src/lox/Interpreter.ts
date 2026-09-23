@@ -4,6 +4,7 @@ import { Lox } from "./Lox.ts";
 import { LoxCallable } from "./LoxCallable.ts";
 import { LoxClass } from "./LoxClass.ts";
 import { LoxFunction } from "./LoxFunction.ts";
+import { LoxInstance } from "./LoxInstance.ts";
 import { Return } from "./Return.ts";
 import { RuntimeError } from "./RuntimeError.ts";
 import * as Stmt from "./Stmt.ts";
@@ -197,7 +198,12 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
     };
     visitClassStmt(stmt: Stmt.Class): void {
         this.environment.define(stmt.name.lexeme, null);
-        const c: LoxClass = new LoxClass(stmt.name.lexeme);
+        const methods: Map<string, LoxFunction> = new Map();
+        for (let method of stmt.methods){
+            const f: LoxFunction = new LoxFunction(method,this.environment);
+            methods.set(method.name.lexeme, f);
+        }
+        const c: LoxClass = new LoxClass(stmt.name.lexeme, methods);
         this.environment.assign(stmt.name,c);
         return;
     };
@@ -209,6 +215,15 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
         const f: LoxFunction = new LoxFunction(stmt, this.environment);
         this.environment.define(stmt.name.lexeme, f);
         return;
+    };
+    visitGetExpr(expr: Expr.Get): Object | null {
+        const object: Object | null = this.evaluate(expr.object);
+
+        if (object instanceof LoxInstance){
+            return (object as LoxInstance).get(expr.name);
+        }
+
+        throw new RuntimeError(expr.name,"Only instances have properties.");
     };
     visitGroupingExpr(expr: Expr.Grouping): Object | null {
         return this.evaluate(expr.expression);
@@ -246,6 +261,17 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
         if (stmt.value != null) value = this.evaluate(stmt.value);
 
         throw new Return(value);
+    };
+    visitSetExpr(expr: Expr.Set): Object | null {
+        const object: Object | null = this.evaluate(expr.object);
+
+        if (!(object instanceof LoxInstance)) {
+            throw new RuntimeError(expr.name,"Only instances have fields.");
+        }
+
+        const value: Object | null = this.evaluate(expr.value);
+        (object as LoxInstance).set(expr.name, value);
+        return value;
     };
     visitUnaryExpr(expr: Expr.Unary): Object | null {
         const right: Object | null = this.evaluate(expr.right);

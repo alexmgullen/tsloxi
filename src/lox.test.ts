@@ -263,6 +263,18 @@ var bagel = Bagel();
 print bagel;
             `)
     ),
+
+    new Test('method resolution',`Crunch crunch crunch!`,
+            () => Lox.run(`
+class Bacon {
+  eat() {
+    print "Crunch crunch crunch!";
+  }
+}
+
+Bacon().eat();
+            `)
+    ),
 ]
 
 const default_output = process.stdout.write;

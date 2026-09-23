@@ -53,6 +53,11 @@ export class GenerateAst {
                 new ParameterDefinition("args","Expr[]")
             ]),
 
+            new ClassDefinition("Get",[
+                new ParameterDefinition("object","Expr"),
+                new ParameterDefinition("name","Token"),
+            ]),
+
             new ClassDefinition("Grouping",[
                 new ParameterDefinition("expression","Expr"),
             ]),
@@ -64,6 +69,11 @@ export class GenerateAst {
                 new ParameterDefinition("left","Expr"),
                 new ParameterDefinition("operator","Token"),
                 new ParameterDefinition("right","Expr"),
+            ]),
+            new ClassDefinition("Set",[
+                new ParameterDefinition("object","Expr"),
+                new ParameterDefinition("name","Token"),
+                new ParameterDefinition("value","Expr"),
             ]),
             new ClassDefinition("Unary",[
                 new ParameterDefinition("operator","Token"),
