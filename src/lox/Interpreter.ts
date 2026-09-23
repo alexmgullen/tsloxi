@@ -197,13 +197,22 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
         return f.loxcall(this, args);
     };
     visitClassStmt(stmt: Stmt.Class): void {
+        let superclass: Object | null = null;
+
+        if (stmt.superclass != null) {
+            superclass = this.evaluate(stmt.superclass);
+            if (!(superclass instanceof LoxClass)){
+                throw new RuntimeError(stmt.superclass.name, "Superclass must be a class.");
+            }
+        }
+
         this.environment.define(stmt.name.lexeme, null);
         const methods: Map<string, LoxFunction> = new Map();
         for (let method of stmt.methods){
-            const f: LoxFunction = new LoxFunction(method,this.environment);
+            const f: LoxFunction = new LoxFunction(method,this.environment,method.name.lexeme === "init");
             methods.set(method.name.lexeme, f);
         }
-        const c: LoxClass = new LoxClass(stmt.name.lexeme, methods);
+        const c: LoxClass = new LoxClass(stmt.name.lexeme, methods, superclass);
         this.environment.assign(stmt.name,c);
         return;
     };
@@ -212,7 +221,7 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
         return;
     };
     visitFunctionStmt(stmt: Stmt.Function): void {
-        const f: LoxFunction = new LoxFunction(stmt, this.environment);
+        const f: LoxFunction = new LoxFunction(stmt, this.environment,false);
         this.environment.define(stmt.name.lexeme, f);
         return;
     };

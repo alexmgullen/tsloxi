@@ -290,6 +290,41 @@ cake.flavor = "German chocolate";
 cake.taste();
             `)
     ),
+
+    new Test('inheritance test',`Fry until golden brown.`,
+            () => Lox.run(`
+class Doughnut {
+  cook() {
+    print "Fry until golden brown.";
+  }
+}
+
+class BostonCream < Doughnut {}
+
+BostonCream().cook();
+            `)
+    ),
+
+    new Test('super method',
+`Fry until golden brown.
+Pipe full of custard and coat with chocolate.`,
+            () => Lox.run(`
+                          class Doughnut {
+  cook() {
+    print "Fry until golden brown.";
+  }
+}
+
+class BostonCream < Doughnut {
+  cook() {
+    super.cook();
+    print "Pipe full of custard and coat with chocolate.";
+  }
+}
+
+BostonCream().cook();
+            `)
+    ),
 ]
 
 const default_output = process.stdout.write;

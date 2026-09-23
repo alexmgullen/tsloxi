@@ -102,6 +102,7 @@ export class GenerateAst {
             new ClassDefinition("Class",[
                 new ParameterDefinition("name","Token"),
                 new ParameterDefinition("methods","Function[]"),
+                new ParameterDefinition("superclass","Variable | null")
             ]),
             new ClassDefinition("Expression",[
                 new ParameterDefinition("expression","Expr")
@@ -134,7 +135,7 @@ export class GenerateAst {
             ],
             [
                 new ImportDefinition("./Token.ts",["Token"]),
-                new ImportDefinition("./Expr.ts",["Expr"])
+                new ImportDefinition("./Expr.ts",["Expr, Variable"])
             ]
         );
 

@@ -7,12 +7,13 @@ import { Token } from "./Token.ts";
 enum FunctionType {
     NONE,
     FUNCTION,
+    INITIALIZER,
     METHOD,
 }
 
 enum ClassType {
     NONE,
-    CLASS
+    CLASS,
 }
 
 let currentClass: ClassType = ClassType.NONE;
@@ -119,11 +120,22 @@ export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
         this.declare(stmt.name);
         this.define(stmt.name);
 
+        if (stmt.superclass != null && stmt.name.lexeme === stmt.superclass.name.lexeme){
+            Lox.error(stmt.superclass.name,"A class can't inherit from itself.");
+        }
+
+        if (stmt.superclass != null) {
+            this.resolve(stmt.superclass);
+        }
+
         this.beginScope();
         this.scopes[this.scopes.length - 1]!.set("this",true);
 
         for (let method of stmt.methods){
-            const declaration: FunctionType = FunctionType.METHOD;
+            let declaration: FunctionType = FunctionType.METHOD;
+            if(method.name.lexeme === "init") {
+                declaration = FunctionType.INITIALIZER;
+            }
             this.resolveFunction(method,declaration);
         }
 
@@ -176,6 +188,9 @@ export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
             Lox.error(stmt.keyword,"Can't return from top-level code.");
         }
         if (stmt.value != null){
+            if (this.currentFunction === FunctionType.INITIALIZER) {
+                Lox.error(stmt.keyword, "Can't return a value from an initializer.");
+            }
             this.resolve(stmt.value);
         }
         return;
