@@ -75,6 +75,9 @@ export class GenerateAst {
                 new ParameterDefinition("name","Token"),
                 new ParameterDefinition("value","Expr"),
             ]),
+            new ClassDefinition("This",[
+                new ParameterDefinition("keyword","Token"),
+            ]),
             new ClassDefinition("Unary",[
                 new ParameterDefinition("operator","Token"),
                 new ParameterDefinition("right","Expr"),

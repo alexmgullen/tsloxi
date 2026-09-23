@@ -1,4 +1,4 @@
-import { Assign, Binary, Call, Expr, Get, Unary, Grouping, Literal, Logical, Set, Variable } from "./Expr.ts";
+import { Assign, Binary, Call, Expr, Get, This, Unary, Grouping, Literal, Logical, Set, Variable } from "./Expr.ts";
 import { Lox } from "./Lox.ts";
 import { Class, Expression, Function, Print, Return, Stmt, Var, Block, If, While } from "./Stmt.ts";
 import { Token } from "./Token.ts";
@@ -308,6 +308,8 @@ export class Parser{
         if (this.match(TokenType.NUMBER,TokenType.STRING)) {
             return new Literal(this.previous().literal);
         }
+
+        if (this.match(TokenType.THIS)) return new This(this.previous());
 
         if (this.match(TokenType.IDENTIFIER)) {
             return new Variable(this.previous());

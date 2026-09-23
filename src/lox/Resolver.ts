@@ -110,10 +110,16 @@ export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
         this.declare(stmt.name);
         this.define(stmt.name);
 
+        this.beginScope();
+        this.scopes[this.scopes.length - 1]!.set("this",true);
+
         for (let method of stmt.methods){
             const declaration: FunctionType = FunctionType.METHOD;
             this.resolveFunction(method,declaration);
         }
+
+        this.endScope();
+
         return;
     };
     visitExpressionStmt(stmt: Stmt.Expression): void {
@@ -186,6 +192,10 @@ export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
         }
 
         this.resolveLocal(expr, expr.name);
+        return;
+    };
+    visitThisExpr(expr: Expr.This): void {
+        this.resolveLocal(expr, expr.keyword);
         return;
     };
     visitUnaryExpr(expr: Expr.Unary): void {

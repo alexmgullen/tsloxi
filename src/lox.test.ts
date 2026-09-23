@@ -275,6 +275,21 @@ class Bacon {
 Bacon().eat();
             `)
     ),
+
+    new Test('cake example',`The German chocolate cake is delicious!`,
+            () => Lox.run(`
+class Cake {
+  taste() {
+    var adjective = "delicious";
+    print "The " + this.flavor + " cake is " + adjective + "!";
+  }
+}
+
+var cake = Cake();
+cake.flavor = "German chocolate";
+cake.taste();
+            `)
+    ),
 ]
 
 const default_output = process.stdout.write;

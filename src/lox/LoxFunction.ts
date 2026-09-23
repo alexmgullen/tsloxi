@@ -2,6 +2,7 @@ import { Environment } from "./Environment.ts";
 import { Function } from "./Stmt.ts";
 import { Interpreter } from "./Interpreter.ts";
 import { LoxCallable } from "./LoxCallable.ts";
+import { LoxInstance } from "./LoxInstance.ts";
 import { Return } from "./Return.ts";
 
 export class LoxFunction extends LoxCallable {
@@ -14,6 +15,11 @@ export class LoxFunction extends LoxCallable {
     };
     arity(): number {
         return this.declaration.params.length;
+    };
+    bind(instance: LoxInstance): LoxFunction {
+        const environment: Environment = new Environment(this.closure);
+        environment.define("this",instance);
+        return new LoxFunction(this.declaration,environment);
     };
     loxcall(interpreter: Interpreter, args: Array<Object | null>) : Object | null {
         const environment: Environment = new Environment(this.closure);

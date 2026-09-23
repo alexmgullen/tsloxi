@@ -273,6 +273,9 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
         (object as LoxInstance).set(expr.name, value);
         return value;
     };
+    visitThisExpr(expr: Expr.This): Object | null {
+        return this.lookupVariable(expr.keyword,expr);
+    };
     visitUnaryExpr(expr: Expr.Unary): Object | null {
         const right: Object | null = this.evaluate(expr.right);
 

@@ -1,4 +1,4 @@
-import { Binary, Call, Grouping, Literal, Logical, Unary, Variable, Assign } from "./Expr.ts";
+import { Binary, Call, Grouping, Literal, Logical, This, Unary, Variable, Assign } from "./Expr.ts";
 import { Expr, Get, Set , type Visitor } from "./Expr.ts";
 
 export class AstPrinter implements Visitor<string> {
@@ -29,7 +29,10 @@ export class AstPrinter implements Visitor<string> {
     };
     visitSetExpr(expr: Set): string {
         return this.parenthesize(expr.name.lexeme);
-    }
+    };
+    visitThisExpr(expr: This): string{
+        return this.parenthesize(expr.keyword.lexeme);
+    };
     visitUnaryExpr(expr: Unary): string {
         return this.parenthesize(expr.operator.lexeme, expr.right);
     };
