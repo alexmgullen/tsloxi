@@ -10,6 +10,13 @@ enum FunctionType {
     METHOD,
 }
 
+enum ClassType {
+    NONE,
+    CLASS
+}
+
+let currentClass: ClassType = ClassType.NONE;
+
 export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
     currentFunction: FunctionType = FunctionType.NONE;
     interpreter: Interpreter;
@@ -107,6 +114,8 @@ export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
         return;
     };
     visitClassStmt(stmt: Stmt.Class): void {
+        const enclosingClass = currentClass;
+        currentClass = ClassType.CLASS;
         this.declare(stmt.name);
         this.define(stmt.name);
 
@@ -119,6 +128,7 @@ export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
         }
 
         this.endScope();
+        currentClass = ClassType.NONE;
 
         return;
     };
@@ -195,6 +205,11 @@ export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
         return;
     };
     visitThisExpr(expr: Expr.This): void {
+        if (currentClass === ClassType.NONE){
+            Lox.error(expr.keyword,
+                     "Can't use 'this' outside of a class.");
+                     return;
+        }
         this.resolveLocal(expr, expr.keyword);
         return;
     };
