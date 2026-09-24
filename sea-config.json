@@ -1,0 +1,6 @@
+{
+    "main": "./dist/tsloxi.js",
+    "mainFormat": "module",
+    "disableExperimentalSEAWarning": true,
+    "output": "./dist/tsloxi.exe"
+}

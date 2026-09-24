@@ -1,18 +1,24 @@
 default: build run
 
+clean:
+	del .\dist\tsloxi.js
+	del .\dist\tsloxi.exe
+
 run:
-	node dist/index.js
+	node dist/tsloxi.js
 
-build: lint
-	npx rolldown src/lox/Lox.ts --file dist/index.js
-
-test: lint
-	npx rolldown src/lox.test.js --file dist/test.index.js
-	node dist/test.index.js
+build: clean lint dist/tsloxi.js dist/tsloxi.exe
 
 lint:
 	npx tsc --noemit
 
-ast:
-	node src/tool/GenerateAst.ts
+ast: src/lox/Expr.ts src/lox/Stmt.ts
 
+src/lox/Expr.ts src/lox/Stmt.ts:
+	node src/tool/GenerateAst.ts src/lox
+
+dist/tsloxi.js: lint
+	npx rolldown src/lox/Lox.ts --file dist/tsloxi.js
+
+dist/tsloxi.exe: dist/tsloxi.js
+	node --build-sea sea-config.json
