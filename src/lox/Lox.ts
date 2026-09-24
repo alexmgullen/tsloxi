@@ -80,7 +80,7 @@ export class Lox {
         }
     };
     static report(line: number,where: string,message:string){
-        console.log("[line:",line,"] Error",where,":",message);
+        console.error(`[line ${line}] Error${where}: ${message}`);
         Lox.hadError = true;
     }
 
@@ -104,7 +104,7 @@ export class Lox {
     };
 
     static runtimeError(error: RuntimeError){
-        console.log(error.message + `[${error.token.line}]`);
+        console.error(error.message + `\n[line ${error.token.line}]`);
         this.hadRuntimeError =  true;
     };
 }

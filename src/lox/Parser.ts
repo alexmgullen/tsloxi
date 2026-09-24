@@ -337,7 +337,7 @@ export class Parser{
             return new Grouping(expr);
         }
 
-        throw this.error(this.peek(),"Expected Expression.");
+        throw this.error(this.peek(),"Expect expression.");
     };
     printStatement(): Stmt{
         const value: Expr = this.expression();

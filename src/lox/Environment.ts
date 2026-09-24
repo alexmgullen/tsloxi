@@ -29,7 +29,7 @@ export class Environment {
             return;
         }
 
-        throw new RuntimeError(name, "Undefined Variable '" + name.lexeme + ";.");
+        throw new RuntimeError(name, `Undefined variable '${name.lexeme}'.`);
     };
     assignAt(distance: number, name: Token, value: Object | null){
         this.ancestors(distance).values.set(name.lexeme, value);
