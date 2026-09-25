@@ -55,7 +55,7 @@ export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
         if (Array.isArray(statementOrStatementsOrExpr)){
             const statements = statementOrStatementsOrExpr as Stmt.Stmt[];
             for (let statement of statements){
-                this.resolve(statement);
+                this.resolve(statement as Stmt.Stmt);
             }
         } else if (statementOrStatementsOrExpr.base! === "Stmt"){
             const statement = statementOrStatementsOrExpr as Stmt.Stmt;
