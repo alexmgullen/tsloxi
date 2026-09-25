@@ -90,7 +90,7 @@ export class Parser{
         let superclass: Variable | null = null;
 
         if (this.match(TokenType.LESS)){
-            this.consume(TokenType.IDENTIFIER,"Expected superclass name.");
+            this.consume(TokenType.IDENTIFIER,"Expect superclass name.");
             superclass = new Variable(this.previous());
         }
 

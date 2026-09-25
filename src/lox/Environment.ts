@@ -24,7 +24,7 @@ export class Environment {
             return;
         }
 
-        if (this.enclosing != null){
+        if (this.enclosing !== null){
             this.enclosing.assign(name,value);
             return;
         }
@@ -44,7 +44,7 @@ export class Environment {
         }
         if (this.enclosing != null) return this.enclosing.get(name)
 
-        throw new RuntimeError(name, "Undefined Variable '" + name.lexeme + ";.");
+        throw new RuntimeError(name, `Undefined variable '${name.lexeme}'.`);
     };
     getAt(distance: number, name: string): Object | null {
         return this.ancestors(distance).values.get(name) ?? null;

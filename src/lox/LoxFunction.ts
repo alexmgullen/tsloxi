@@ -43,6 +43,6 @@ export class LoxFunction extends LoxCallable {
         return null;
     };
     toString(): string {
-        return `<fn ${this.declaration.name.lexeme} >`;
+        return `<fn ${this.declaration.name.lexeme}>`;
     };
 }

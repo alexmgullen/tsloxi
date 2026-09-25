@@ -29,11 +29,11 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
     };
     checkNumberOperand(operator: Token, operand: Object | null){
         if (typeof operand === "number") return;
-        throw new RuntimeError(operator, "Operand must be a number");
+        throw new RuntimeError(operator, "Operands must be numbers.");
     };
     checkNumberOperands(operator: Token, left: Object | null, right: Object | null){
         if (typeof left === "number" && typeof right === "number") return;
-        throw new RuntimeError(operator, "Operand must be a number");
+        throw new RuntimeError(operator, "Operands must be numbers.");
     };
     evaluate(expr: Expr.Expr): Object | null {
         return expr.accept(this);
@@ -165,7 +165,7 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
                     return (left as string) + (right as string);
                 }
 
-                throw new RuntimeError(expr.operator, "Operand must be two numbers or two strings");
+                throw new RuntimeError(expr.operator, "Operands must be two numbers or two strings.");
             case TokenType.GREATER:
                 this.checkNumberOperands(expr.operator, left, right);
                 return (left as number) > (right as number);
@@ -289,7 +289,7 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
         console.log(this.stringify(value));
         return;
     };
-    visitReturnStmt(stmt: Stmt.Return){
+    visitReturnStmt(stmt: Stmt.Return): void {
         let value: Object | null = null;
 
         if (stmt.value !== null) value = this.evaluate(stmt.value);
