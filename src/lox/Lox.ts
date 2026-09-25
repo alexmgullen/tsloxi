@@ -98,7 +98,8 @@ export class Lox {
 
         const resolver: Resolver = new Resolver(this.interpreter);
         resolver.resolve(statements);
-
+        
+        if(this.hadError) return;
 
         Lox.interpreter.interpret(statements!);
     };

@@ -231,7 +231,7 @@ export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
         return;
     };
     visitVariableExpr(expr: Expr.Variable): void {
-        if (!(this.scopes.length === 0) && this.scopes[this.scopes.length - 1]!.get(expr.name.lexeme) === false) {
+        if ((this.scopes.length > 0) && this.scopes[this.scopes.length - 1]!.get(expr.name.lexeme) === false) {
             Lox.error(expr.name,"Can't read local variable in it's own initializer.");
         }
 
