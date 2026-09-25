@@ -223,7 +223,7 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
 
         this.environment.define(stmt.name.lexeme, null);
 
-        if(stmt.superclass != null){
+        if(stmt.superclass !== null){
             this.environment = new Environment(this.environment);
             this.environment.define("super",superclass);
         }

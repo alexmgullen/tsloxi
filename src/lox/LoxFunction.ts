@@ -40,6 +40,8 @@ export class LoxFunction extends LoxCallable {
                 throw v;
             }
         }
+
+        if (this.isInitializer) return this.closure.getAt(0,"this");
         return null;
     };
     toString(): string {
