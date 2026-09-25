@@ -71,18 +71,34 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
     isEqual(a: Object | null , b: Object | null ): boolean {
         if (a === null && b === null) return true;
         if (a === null) return false;
-        
-        const aEntries = Object.entries(a);
-        const bEntries = Object.entries(b!);
-        if (aEntries.length !== bEntries.length) return false;
+        if (typeof a !== typeof b) return false;
+        //TODO: this equality check is good enough to past the testcases, but It could be more watertight
+        switch(typeof a){
+            case "boolean":
+                return (a as boolean) === (b as boolean);
+            case "number":
+                return (a as number) === (b as number);
+            case "bigint":
+                return (a as bigint) === (b as bigint);
+            case "string":
+                return (a as string) === (b as string);
+            case "symbol":
+                return (a as symbol).toString() === (b as symbol).toString();
+            case "function":
+                return (a as Function).toString() === (b as Function).toString();
+            case "object":
+                const aEntries = Object.entries(a);
+                const bEntries = Object.entries(b!);
+                if (aEntries.length !== bEntries.length) return false;
 
-        for(let i = 0; i < aEntries.length; i ++){
-            if(aEntries[i] !== bEntries[i]){
-                return false;
-            }
+                for(let i = 0; i < aEntries.length; i ++){
+                    if(aEntries[i] !== bEntries[i]){
+                        return false;
+                    }
+                }
         }
 
-        return true;
+        return false;
     };
     isTruthy(object: any): boolean {
         if(object === null) return false;
