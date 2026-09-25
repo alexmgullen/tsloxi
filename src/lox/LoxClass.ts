@@ -24,7 +24,7 @@ export class LoxClass extends LoxCallable {
 
         return null;
     }
-    toString(){
+    toString(): string {
         return this.name;
     };
     loxcall(interpreter: Interpreter, args: Array<Object | null>): Object | null {

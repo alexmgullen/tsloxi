@@ -292,7 +292,7 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
     visitReturnStmt(stmt: Stmt.Return){
         let value: Object | null = null;
 
-        if (stmt.value != null) value = this.evaluate(stmt.value);
+        if (stmt.value !== null) value = this.evaluate(stmt.value);
 
         throw new Return(value);
     };
