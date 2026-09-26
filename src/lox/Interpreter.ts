@@ -120,6 +120,7 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
         if (object == null) return "nil";
 
         if (typeof object === "number"){
+            if(Object.is(object,-0)) return "-0"; // special case since javascript's default toString() strips the leading -
             let text = object.toString();
             if (text.endsWith(".0")) {
                 text = text.substring(0, text.length - 2);
