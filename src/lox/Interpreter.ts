@@ -70,7 +70,7 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
     };
     isEqual(a: Object | null , b: Object | null ): boolean {
         if (a === null && b === null) return true;
-        if (a === null) return false;
+        if (a === null || b === null) return false;
         if (typeof a !== typeof b) return false;
         //TODO: this equality check is good enough to past the testcases, but It could be more watertight
         switch(typeof a){
@@ -87,15 +87,25 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
             case "function":
                 return (a as Function).toString() === (b as Function).toString();
             case "object":
-                const aEntries = Object.entries(a);
-                const bEntries = Object.entries(b!);
-                if (aEntries.length !== bEntries.length) return false;
+                if(Array.isArray(a) && Array.isArray(b)){
+                    if(a.length != b.length) return false;
+                    for (let i = 0; i < a.length; i ++){
+                        if (a[i] !== b[i]) return false;
+                    }
 
+                    return true;
+                }
+                if(Array.isArray(a) || Array.isArray(b)) return false;
+                const aEntries = Object.entries(a);
+                const bEntries = Object.entries(b);
+
+                if (aEntries.length !== bEntries.length) return false;
                 for(let i = 0; i < aEntries.length; i ++){
-                    if(aEntries[i] !== bEntries[i]){
+                    if(! this.isEqual(aEntries[i] ?? null,bEntries[i] ?? null)){
                         return false;
                     }
                 }
+                return true;
         }
 
         return false;
