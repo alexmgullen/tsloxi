@@ -125,12 +125,9 @@ export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
             Lox.error(stmt.superclass.name,"A class can't inherit from itself.");
         }
 
-        if (stmt.superclass != null) {
+        if (stmt.superclass !== null) {
             currentClass = ClassType.SUBCLASS;
             this.resolve(stmt.superclass);
-        }
-
-        if(stmt.superclass === null){
             this.beginScope();
             this.scopes[this.scopes.length - 1]!.set("super",true);
         }
@@ -149,7 +146,7 @@ export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
         this.endScope();
         
         if (stmt.superclass != null) this.endScope();
-        currentClass = ClassType.NONE;
+        currentClass = enclosingClass;
 
         return;
     };
@@ -196,7 +193,7 @@ export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
         if (this.currentFunction === FunctionType.NONE){
             Lox.error(stmt.keyword,"Can't return from top-level code.");
         }
-        if (stmt.value != null){
+        if (stmt.value !== null){
             if (this.currentFunction === FunctionType.INITIALIZER) {
                 Lox.error(stmt.keyword, "Can't return a value from an initializer.");
             }
