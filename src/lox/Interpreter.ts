@@ -29,7 +29,7 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
     };
     checkNumberOperand(operator: Token, operand: Object | null){
         if (typeof operand === "number") return;
-        throw new RuntimeError(operator, "Operands must be numbers.");
+        throw new RuntimeError(operator, "Operand must be a number.");
     };
     checkNumberOperands(operator: Token, left: Object | null, right: Object | null){
         if (typeof left === "number" && typeof right === "number") return;
@@ -341,6 +341,7 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
             case TokenType.BANG:
                 return !this.isTruthy(right);
             case TokenType.MINUS:
+                this.checkNumberOperand(expr.operator, right);
                 return - (right as number);
         }
 
