@@ -1,4 +1,4 @@
-import { Assign, Binary, Call, Expr, Get, This, Unary, Grouping, Literal, Logical, Set, Super, Variable } from "./Expr.ts";
+import { Arr, Assign, Binary, Call, Expr, Get, This, Unary, Grouping, Literal, Logical, Set, Super, Variable } from "./Expr.ts";
 import { Lox } from "./Lox.ts";
 import { Class, Expression, Function, Print, Return, Stmt, Var, Block, If, While } from "./Stmt.ts";
 import { Token } from "./Token.ts";
@@ -138,7 +138,6 @@ export class Parser{
         Lox.error(token,message);
         return new ParseError();
     };
-    // expression     -> equality
     expression(): Expr {
         return this.assignment();
     };
@@ -147,7 +146,6 @@ export class Parser{
         this.consume(TokenType.SEMICOLON,"Expect ';' after expression.");
         return new Expression(expr);
     };
-    // equality       -> comparison ( ( "!=" | "==" ) comparison )* ;
     equality(): Expr {
         let expr: Expr = this.comparison();
 
@@ -312,20 +310,30 @@ export class Parser{
         if (this.match(TokenType.FALSE)) return new Literal(false);
         if (this.match(TokenType.TRUE)) return new Literal(true);
         if (this.match(TokenType.NIL)) return new Literal(null);
+        
+        if (this.match(TokenType.THIS)) return new This(this.previous());
+       
+        //FIXME:  It's possible this isn't O(n) time
+        if (this.match(TokenType.LEFT_BRACKET)) {
+            const exprs: Array<Expr> = [];
+            while(this.peek().type !== TokenType.RIGHT_BRACKET){
+                if(this.peek().type === TokenType.EOF){
+                    throw this.error(this.peek(), "Expect ']' after array.");
+                }else if(this.peek().type === TokenType.COMMA){
+                    this.advance();
+                }else{
+                    exprs.push(this.primary());
+                }
+            }
+
+            //consume the closing bracket
+            this.advance();
+            return new Arr(exprs);
+        }
 
         if (this.match(TokenType.NUMBER,TokenType.STRING)) {
             return new Literal(this.previous().literal);
         }
-
-        if (this.match(TokenType.SUPER)) {
-            const keyword: Token = this.previous();
-
-            this.consume(TokenType.DOT,"Expect '.' after 'super'.");
-            const method = this.consume(TokenType.IDENTIFIER,"Expect superclass method name.");
-            return new Super(keyword, method);
-        }
-
-        if (this.match(TokenType.THIS)) return new This(this.previous());
 
         if (this.match(TokenType.IDENTIFIER)) {
             return new Variable(this.previous());
@@ -336,6 +344,15 @@ export class Parser{
             this.consume(TokenType.RIGHT_PAREN,"Expect ')' after expression.");
             return new Grouping(expr);
         }
+
+        if (this.match(TokenType.SUPER)) {
+            const keyword: Token = this.previous();
+
+            this.consume(TokenType.DOT,"Expect '.' after 'super'.");
+            const method = this.consume(TokenType.IDENTIFIER,"Expect superclass method name.");
+            return new Super(keyword, method);
+        }
+
 
         throw this.error(this.peek(),"Expect expression.");
     };

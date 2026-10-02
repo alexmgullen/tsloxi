@@ -1,10 +1,13 @@
 import { Binary, Call, Grouping, Literal, Logical, This, Unary, Variable, Assign } from "./Expr.ts";
-import { Expr, Get, Set , Super, type Visitor } from "./Expr.ts";
+import { Arr, Expr, Get, Set , Super, type Visitor } from "./Expr.ts";
 
 export class AstPrinter implements Visitor<string> {
     print(expr: Expr): string{
         return expr.accept(this);
-    };    
+    };
+    visitArrExpr(expr: Arr): string {
+        return this.parenthesize("array",...expr.exprs);
+    };
     visitAssignExpr(expr: Assign): string {
         return this.parenthesize(expr.name.lexeme, expr);
     };

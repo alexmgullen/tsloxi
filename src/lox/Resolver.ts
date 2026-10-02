@@ -90,6 +90,12 @@ export class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
             }
         }
     };
+    visitArrExpr(expr: Expr.Arr): void {
+        for(const e of expr.exprs){
+            this.resolve(e);
+        }
+        return;
+    };
     visitAssignExpr(expr: Expr.Assign): void {
         this.resolve(expr.value);
         this.resolveLocal(expr, expr.name);

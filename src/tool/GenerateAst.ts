@@ -40,6 +40,10 @@ export class GenerateAst {
         const outputDir: string = args[2]!;
 
         this.defineAst(outputDir,"Expr",[
+            new ClassDefinition("Arr",[
+                new ParameterDefinition("exprs","Expr[]"),
+            ]),
+
             new ClassDefinition("Binary",[
                 new ParameterDefinition("left","Expr"),
                 new ParameterDefinition("operator","Token"),

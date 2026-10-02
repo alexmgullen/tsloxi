@@ -140,6 +140,15 @@ export class Interpreter implements Expr.Visitor<Object | null>, Stmt.Visitor<vo
 
         return object.toString();
     };
+    visitArrExpr(expr: Expr.Arr): Object | null {
+        const value: Array<any> = [];
+
+        for (const e of expr.exprs){
+            value.push(e);
+        }
+
+        return value;
+    };
     visitAssignExpr(expr: Expr.Assign): Object | null {
         const value: Object | null = this.evaluate(expr.value);
 
